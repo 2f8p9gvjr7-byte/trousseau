@@ -13,139 +13,180 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <style>
-/* Layout : une seule colonne façon tableau de bord de cockpit — en-tête fixe, liste, bouton d'action flottant */
+/* Layout : liste alphabétique façon carnet de bord, index A–Z à droite, page Détails plein écran, feuilles modales */
 :root{
   --bg-deep:#0d1526; --bg:#1a2035; --card:#1e2d4a; --card-hi:#26385c;
   --line:rgba(160,176,200,.16); --ink:#ffffff; --muted:#a0b0c8; --faint:#6f80a0;
-  --amber:#f5a623; --amber-ink:#1a1204; --green:#2ecc71; --red:#e85d4f;
+  --amber:#f5a623; --amber-ink:#1a1204; --green:#2ecc71; --red:#e85d4f; --sky:#5dade2;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
   --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Roboto Mono",monospace;
+  --hh:170px;
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
-body{background:var(--bg-deep);color:var(--ink);font:15px/1.45 var(--sans);
-  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-  overscroll-behavior:none}
+body{background:var(--bg-deep);color:var(--ink);font:16px/1.45 var(--sans);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);overscroll-behavior:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:50;background:var(--bg-deep)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 [hidden]{display:none!important}
-.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.lbl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:600px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbl{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+svg{display:block}
 
 /* ---------- Écrans d'accès ---------- */
-.gate{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:28px;padding-block:32px}
-.dial{width:132px;height:132px;margin:0 auto;border-radius:50%;position:relative;
-  background:radial-gradient(circle at 50% 40%,var(--card-hi),var(--bg) 70%);
-  border:2px solid var(--line);display:grid;place-items:center;
+.gate{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:32px}
+.dial{width:128px;height:128px;margin:0 auto;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 40%,var(--card-hi),var(--bg) 70%);border:2px solid var(--line);
   box-shadow:0 0 0 6px var(--bg),0 0 0 7px var(--line)}
 .dial::before{content:"";position:absolute;inset:10px;border-radius:50%;
-  background:conic-gradient(var(--amber) 0 0.5turn,transparent 0.5turn);
+  background:conic-gradient(var(--amber) 0 .5turn,transparent .5turn);
   -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
-          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
-  transform:rotate(-90deg);opacity:.9}
-.dial svg{width:52px;height:52px}
-.gate h1{margin:0;text-align:center;font-size:26px;letter-spacing:.02em;text-wrap:balance}
-.gate p.sub{margin:6px 0 0;text-align:center;color:var(--muted);font-size:14px}
+  mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));transform:rotate(-90deg)}
+.dial svg{width:50px;height:50px}
+.gate h1{margin:0;text-align:center;font-size:26px;text-wrap:balance}
+.gate p.sub{margin:6px 0 0;text-align:center;color:var(--muted);font-size:15px}
 .form{display:flex;flex-direction:column;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
-.input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
-  padding:13px 14px;font-size:16px;outline:none;transition:border-color .15s}
+.input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
 .input:focus{border-color:var(--amber)}
-.input.mono{font-family:var(--mono);letter-spacing:.02em}
-textarea.input{min-height:84px;resize:vertical}
-.row{display:flex;gap:8px;align-items:stretch}
+.input.mono{font-family:var(--mono)}
+textarea.input{min-height:90px;resize:vertical}
+.row{display:flex;gap:8px}
 .row .input{flex:1;min-width:0}
-.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:12px 16px;
-  font-weight:700;letter-spacing:.04em;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
 .btn.go{background:var(--green);color:#06210f;border-color:var(--green)}
 .btn.danger{color:var(--red);border-color:rgba(232,93,79,.45);background:transparent}
-.btn.ghost{background:transparent}
-.btn.icon{padding:0;width:46px;flex:0 0 46px}
+.btn.ghost{background:transparent;border:none;color:var(--faint);font-weight:600}
 .btn[disabled]{opacity:.5;pointer-events:none}
-.btn svg{width:18px;height:18px}
-.err{color:var(--red);font-size:13px;min-height:18px;text-align:center}
-.hint{color:var(--faint);font-size:12.5px}
+.ibtn{width:46px;height:46px;flex:0 0 46px;border-radius:50%;border:1px solid var(--line);background:var(--card);
+  display:grid;place-items:center;color:var(--ink)}
+.ibtn svg{width:21px;height:21px}
+.ibtn.on{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
+.err{color:var(--red);font-size:14px;min-height:18px;text-align:center}
+.hint{color:var(--faint);font-size:13.5px}
 .strength{display:flex;gap:4px}
 .strength i{flex:1;height:4px;border-radius:2px;background:var(--line)}
 .shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
 
-/* ---------- Coffre ---------- */
-.app{min-height:100%;display:flex;flex-direction:column}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg-deep);
-  border-bottom:1px solid var(--line)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg-deep)}
-.topbar{display:flex;align-items:center;gap:10px;padding-block:12px 10px}
-.brand{flex:1;min-width:0;display:flex;flex-direction:column}
-.brand b{font-size:20px;letter-spacing:.02em}
-.status{display:flex;gap:6px;align-items:center;margin-top:2px}
+/* ---------- Liste ---------- */
+.app{min-height:100%}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg-deep);border-bottom:1px solid var(--line)}
+.topbar{display:flex;align-items:center;gap:8px;padding-block:10px 8px}
+.topbar h1{flex:1;min-width:0;margin:0;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{display:flex;gap:6px;padding-bottom:8px}
 .chip{font-size:10.5px;font-weight:800;letter-spacing:.12em;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--green);border-color:rgba(46,204,113,.4)}
 .chip.air{color:var(--amber);border-color:rgba(245,166,35,.5)}
-.search{padding-block:0 12px}
-.search .input{padding-left:40px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f80a0' stroke-width='2.2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 13px 50%/18px no-repeat}
-main.list{flex:1;padding-block:14px 110px;display:flex;flex-direction:column;gap:8px}
-.count{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 4px}
-.count span{font-variant-numeric:tabular-nums}
-.entry{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
-  border-radius:12px;padding:10px 10px 10px 12px;text-align:left;width:100%}
-.entry:active{background:var(--card-hi)}
-.av{width:40px;height:40px;flex:0 0 40px;border-radius:9px;display:grid;place-items:center;
-  font-weight:800;font-size:17px;color:var(--bg-deep)}
+.cats{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:none;padding:0;color:var(--muted);font-size:11.5px;font-weight:700;min-width:58px}
+.cat span.c{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;border:1.5px dashed rgba(245,166,35,.5);color:var(--amber)}
+.cat span.c svg{width:24px;height:24px}
+.cat.on{color:var(--ink)}
+.cat.on span.c{background:var(--amber);color:var(--amber-ink);border:1.5px solid var(--amber)}
+.search{position:relative;padding-bottom:12px}
+.search .input{padding-left:42px;padding-right:44px}
+.search svg.mag{position:absolute;left:13px;top:13px;width:20px;height:20px;color:var(--faint);pointer-events:none}
+.search .clear{position:absolute;right:6px;top:6px;width:36px;height:36px;border:none;border-radius:50%;background:var(--card-hi);color:var(--ink);display:grid;place-items:center;font-size:18px;font-weight:700}
+main.list{padding-block:12px 120px;padding-right:max(30px,env(safe-area-inset-right,0px))}
+.sec{scroll-margin-top:calc(var(--hh) + env(safe-area-inset-top,0px) + 4px);display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--amber);font-weight:800;font-size:14px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.entry{display:flex;align-items:center;gap:14px;width:100%;padding:11px 4px;border:none;background:none;text-align:left;border-radius:12px}
+.entry:active{background:var(--card)}
+.eicon{width:46px;height:46px;flex:0 0 46px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1px solid var(--line)}
+.eicon svg{width:24px;height:24px}
 .meta{flex:1;min-width:0}
-.meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta small{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.star{color:var(--amber);font-size:13px;margin-left:4px}
-.qcopy{flex:0 0 42px;height:42px;border-radius:9px;border:1px solid var(--line);background:var(--bg);
-  display:grid;place-items:center;color:var(--amber)}
-.qcopy svg{width:18px;height:18px}
-.backup{display:flex;align-items:center;gap:12px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.45);
-  border-radius:12px;padding:12px}
-.backup div{flex:1;min-width:0;font-size:13.5px;color:var(--muted)}
-.backup b{display:block;color:var(--amber);font-size:14px}
-.backup .btn{padding:9px 14px;flex:0 0 auto}
-.empty{text-align:center;padding:48px 12px;color:var(--muted)}
-.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
-.fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));
-  bottom:calc(env(safe-area-inset-bottom,0px) + 20px);z-index:6;width:60px;height:60px;border-radius:50%;
-  border:none;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.meta b{display:block;font-size:17.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta small{display:block;color:var(--muted);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star{color:var(--amber);font-size:14px;margin-left:5px}
+.empty{text-align:center;padding:44px 12px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+.empty .btn{margin-top:14px}
+.backup{display:flex;align-items:center;gap:12px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.45);border-radius:14px;padding:12px;margin-bottom:6px}
+.backup div{flex:1;min-width:0;font-size:14px;color:var(--muted)}
+.backup b{display:block;color:var(--amber);font-size:15px}
+.backup .btn{padding:10px 14px;flex:0 0 auto}
+.az{position:fixed;right:max(2px,env(safe-area-inset-right,0px));top:calc(var(--hh) + env(safe-area-inset-top,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 96px);
+  z-index:4;display:flex;flex-direction:column;justify-content:center;width:24px;touch-action:none}
+.az button{border:none;background:none;padding:0;font-size:11px;font-weight:800;line-height:1.25;color:var(--faint)}
+.az button.has{color:var(--amber)}
+.fab{position:fixed;right:max(20px,calc(env(safe-area-inset-right,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 22px);
+  z-index:6;width:62px;height:62px;border-radius:50%;border:none;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .fab svg{width:28px;height:28px}
 
-/* ---------- Feuilles (modales) ---------- */
-.backdrop{position:fixed;inset:0;z-index:20;background:rgba(5,9,18,.66);display:flex;align-items:flex-end;justify-content:center}
-.sheet{width:100%;max-width:560px;max-height:92%;overflow-y:auto;background:var(--bg);
-  border:1px solid var(--line);border-bottom:none;border-radius:18px 18px 0 0;
-  padding-block:10px calc(env(safe-area-inset-bottom,0px) + 18px);
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  animation:up .22s ease-out}
+/* ---------- Page Détails ---------- */
+.detail{position:fixed;inset:0;z-index:15;background:var(--bg-deep);overflow-y:auto;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 30px)}
+.dbar{position:sticky;top:0;z-index:2;background:var(--bg-deep);display:flex;align-items:center;gap:10px;padding-block:10px}
+.dbar h2{flex:1;margin:0;text-align:center;font-size:18px}
+.dhead{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0 18px}
+.dhead .eicon{width:72px;height:72px;flex-basis:72px}
+.dhead .eicon svg{width:38px;height:38px}
+.dname{display:flex;gap:10px;align-items:stretch;width:100%}
+.dname h3{flex:1;min-width:0;margin:0;font-size:28px;line-height:1.2;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;overflow-wrap:anywhere}
+.dname .ibtn{height:auto;border-radius:14px;width:62px;flex-basis:62px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.tag{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:600}
+.tag svg{width:20px;height:20px;color:var(--amber)}
+.dsec{margin:20px 0 8px}
+.fbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.fbox .k{color:var(--muted);font-size:14.5px}
+.frow{display:flex;align-items:center;gap:8px;margin-top:2px}
+.frow .v{flex:1;min-width:0;font-size:17px;font-weight:700;overflow-wrap:anywhere;white-space:pre-wrap}
+.frow .v.mono{font-family:var(--mono);font-weight:600;letter-spacing:.03em}
+.frow a.v{color:var(--sky);text-decoration:none}
+.mini{width:40px;height:40px;flex:0 0 40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--amber)}
+.mini svg{width:19px;height:19px}
+.bar{height:5px;border-radius:3px;background:var(--line);margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px}
+.warns{margin-top:12px;background:var(--bg);border-radius:12px;padding:4px 12px}
+.warn{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:15px}
+.warn+.warn{border-top:1px solid var(--line)}
+.warn i{width:30px;height:30px;flex:0 0 30px;border-radius:8px;display:grid;place-items:center;background:rgba(232,93,79,.18);color:var(--red);font-style:normal;font-weight:800}
+.warn.ok i{background:rgba(46,204,113,.16);color:var(--green)}
+.info{display:grid;gap:12px}
+.info div span{display:block;color:var(--muted);font-size:14.5px}
+.info div b{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ---------- Feuilles ---------- */
+.backdrop{position:fixed;inset:0;z-index:20;background:rgba(5,9,18,.7);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:600px;max-height:92%;overflow-y:auto;background:var(--bg);border:1px solid var(--line);border-bottom:none;border-radius:20px 20px 0 0;
+  padding-block:10px calc(env(safe-area-inset-bottom,0px) + 20px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(30px);opacity:.4}}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
-.sheet h2{margin:0 0 16px;font-size:19px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.sheet h2 button{border:none;background:transparent;color:var(--muted);padding:6px;font-size:14px;font-weight:700}
+.sheet h2{margin:0 0 16px;font-size:20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet h2 button{border:none;background:none;color:var(--muted);padding:6px;font-size:15px;font-weight:700}
+.segs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.seg svg{width:20px;height:20px}
+.seg.on{border-color:var(--amber);color:var(--amber);background:rgba(245,166,35,.1)}
 .gen{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px}
 .gen-top{display:flex;justify-content:space-between;align-items:center}
-.gen-top output{font-family:var(--mono);color:var(--amber);font-weight:700;font-variant-numeric:tabular-nums}
+.gen-top output{font-family:var(--mono);color:var(--amber);font-weight:700}
 input[type=range]{width:100%;accent-color:var(--amber)}
 .toggles{display:flex;flex-wrap:wrap;gap:8px}
-.tg{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700}
+.tg{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px;font-weight:700}
 .tg input{accent-color:var(--green);margin:0}
 .fav{display:flex;align-items:center;gap:10px;font-weight:600}
 .fav input{width:20px;height:20px;accent-color:var(--amber)}
 .actions{display:flex;gap:10px;margin-top:6px}
 .actions .btn{flex:1}
-.group{display:flex;flex-direction:column;gap:10px;padding-block:14px;border-top:1px solid var(--line)}
+.group{display:flex;flex-direction:column;gap:10px;padding-block:16px;border-top:1px solid var(--line)}
 .group:first-of-type{border-top:none;padding-top:0}
-.stamp{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.stamp{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
 
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 92px);
-  z-index:40;background:var(--card-hi);border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;
-  font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
-.banner{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:30;background:var(--green);color:#06210f;
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 98px);z-index:60;
+  background:var(--card-hi);border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-size:15px;font-weight:600;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+.banner{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:55;background:var(--green);color:#06210f;
   display:flex;gap:10px;align-items:center;justify-content:center;padding:10px 16px;font-weight:700;font-size:14px}
 .banner button{border:1px solid #06210f;background:transparent;border-radius:7px;padding:5px 10px;font-weight:800;color:#06210f}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -164,7 +205,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <span class="hint" id="s-hint">8 caractères minimum. Une phrase de plusieurs mots est idéale.</span></div>
     <div class="field"><label class="lbl" for="s-pw2">Confirmer</label>
       <input class="input" id="s-pw2" type="password" autocomplete="new-password" required></div>
-    <p class="hint">Personne ne pourra le récupérer si tu l'oublies, pas même moi. Note-le dans un endroit sûr.</p>
+    <p class="hint">Personne ne pourra le récupérer si tu l'oublies. Note-le dans un endroit sûr.</p>
     <button class="btn primary" id="s-go" type="submit">Créer mon trousseau</button>
     <div class="err" id="s-err" role="alert"></div>
   </form>
@@ -180,47 +221,65 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <button class="btn primary" id="l-go" type="submit">Déverrouiller</button>
     <div class="err" id="l-err" role="alert"></div>
   </form>
-  <button class="btn ghost" id="l-forgot" type="button" style="font-weight:600;color:var(--faint);border:none">Mot de passe oublié ?</button>
+  <button class="btn ghost" id="l-forgot" type="button">Mot de passe oublié ?</button>
   <div id="forgot-box" class="form" hidden>
-    <span class="hint">Sans le mot de passe maître, personne ne peut ouvrir le coffre. Tu peux tout effacer et repartir de zéro, puis importer une sauvegarde si tu en as une. Tape EFFACER pour confirmer.</span>
+    <span class="hint">Sans le mot de passe maître, personne ne peut ouvrir le coffre. Tu peux tout effacer et repartir de zéro, puis restaurer une sauvegarde si tu en as une. Tape EFFACER pour confirmer.</span>
     <input class="input" id="forgot-txt" autocapitalize="characters" autocomplete="off" aria-label="Taper EFFACER">
     <button class="btn danger" id="forgot-go" type="button">Effacer et recommencer</button>
   </div>
 </section>
 
-<!-- Coffre -->
+<!-- Liste -->
 <section id="v-app" class="app" hidden>
-  <header class="top">
+  <header class="top" id="hdr">
     <div class="wrap">
       <div class="topbar">
-        <div class="brand"><b>Trousseau</b>
-          <div class="status"><span class="chip ok" id="saved">CHIFFRÉ ✓</span><span class="chip air" id="offline" hidden>✈ MODE AVION</span></div></div>
-        <button class="btn icon ghost" id="b-settings" aria-label="Réglages" style="height:46px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
-        <button class="btn icon ghost" id="b-lock" aria-label="Verrouiller" style="height:46px;color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+        <h1 id="list-title">Tous les accès</h1>
+        <button class="ibtn" id="b-fav" aria-label="Afficher seulement les favoris" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>
+        <button class="ibtn" id="b-settings" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+        <button class="ibtn" id="b-lock" aria-label="Verrouiller" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
       </div>
-      <div class="search"><input class="input" id="q" type="search" placeholder="Rechercher un service, un identifiant…" autocomplete="off" aria-label="Rechercher"></div>
+      <div class="status"><span class="chip ok" id="saved">CHIFFRÉ ✓</span><span class="chip air" id="offline" hidden>✈ MODE AVION</span></div>
+      <div class="cats" id="cats" role="tablist"></div>
+      <div class="search">
+        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="input" id="q" type="text" enterkeyhint="search" placeholder="Rechercher…" autocomplete="off" autocapitalize="off" aria-label="Rechercher">
+        <button class="clear" id="q-clear" type="button" aria-label="Effacer la recherche" hidden>×</button>
+      </div>
     </div>
   </header>
   <main class="wrap list" id="list"></main>
-  <button class="fab" id="b-add" aria-label="Ajouter un mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <nav class="az" id="az" aria-label="Index alphabétique" hidden></nav>
+  <button class="fab" id="b-add" aria-label="Ajouter un accès"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 </section>
 
-<!-- Feuille : fiche -->
+<!-- Page Détails -->
+<section class="detail" id="v-detail" hidden>
+  <div class="wrap">
+    <div class="dbar">
+      <button class="ibtn" id="d-back" aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
+      <h2>Détails</h2>
+      <button class="ibtn" id="d-edit" aria-label="Modifier" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button>
+    </div>
+    <div id="d-body"></div>
+  </div>
+</section>
+
+<!-- Feuille : modification -->
 <div class="backdrop" id="sh-edit" hidden>
   <form class="sheet" id="f-edit" autocomplete="off" role="dialog" aria-labelledby="e-title">
     <div class="grab"></div>
-    <h2><span id="e-title">Nouvel accès</span><button type="button" data-close>Fermer</button></h2>
+    <h2><span id="e-title">Nouvel accès</span><button type="button" data-close>Annuler</button></h2>
     <div class="form">
-      <div class="field"><label class="lbl" for="e-name">Service</label>
-        <input class="input" id="e-name" required placeholder="Ex. Banque, Netflix, Ameli…"></div>
-      <div class="field"><label class="lbl" for="e-user">Identifiant / e-mail</label>
-        <div class="row"><input class="input" id="e-user" autocapitalize="off" spellcheck="false">
-          <button type="button" class="btn icon" data-copy="e-user" aria-label="Copier l'identifiant">⧉</button></div></div>
+      <div class="field"><span class="lbl">Catégorie</span><div class="segs" id="e-cats"></div></div>
+      <div class="field"><label class="lbl" for="e-name">Nom</label>
+        <input class="input" id="e-name" required placeholder="Ex. BNP Paribas, Netflix, Ameli…"></div>
+      <div class="field"><label class="lbl" for="e-user">Nom d'utilisateur / e-mail</label>
+        <input class="input" id="e-user" autocapitalize="off" spellcheck="false"></div>
       <div class="field"><label class="lbl" for="e-pw">Mot de passe</label>
         <div class="row"><input class="input mono" id="e-pw" type="password" autocapitalize="off" spellcheck="false" autocomplete="off">
-          <button type="button" class="btn icon" id="e-eye" aria-label="Afficher le mot de passe">👁</button>
-          <button type="button" class="btn icon" data-copy="e-pw" aria-label="Copier le mot de passe">⧉</button></div></div>
-      <button type="button" class="btn" id="e-gen-toggle">⚙︎ Générer un mot de passe</button>
+          <button type="button" class="ibtn" id="e-eye" aria-label="Afficher le mot de passe" style="border-radius:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <button type="button" class="btn" id="e-gen-toggle">Générer un mot de passe</button>
       <div class="gen" id="gen" hidden>
         <div class="gen-top"><span class="lbl">Longueur</span><output id="g-len-o">20</output></div>
         <input type="range" id="g-len" min="8" max="40" value="20" aria-label="Longueur">
@@ -235,9 +294,8 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="field"><label class="lbl" for="e-url">Site web</label>
         <input class="input" id="e-url" type="url" inputmode="url" autocapitalize="off" placeholder="https://"></div>
       <div class="field"><label class="lbl" for="e-notes">Notes</label>
-        <textarea class="input" id="e-notes" placeholder="Code PIN, questions secrètes…"></textarea></div>
-      <label class="fav"><input type="checkbox" id="e-fav">Épingler en haut de la liste</label>
-      <span class="stamp" id="e-stamp"></span>
+        <textarea class="input" id="e-notes" placeholder="Code PIN, n° de compte, questions secrètes…"></textarea></div>
+      <label class="fav"><input type="checkbox" id="e-fav">Favori</label>
       <div class="actions">
         <button type="button" class="btn danger" id="e-del" hidden>Supprimer</button>
         <button type="submit" class="btn go">Enregistrer</button>
@@ -251,6 +309,25 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <div class="sheet" role="dialog" aria-labelledby="set-title">
     <div class="grab"></div>
     <h2><span id="set-title">Réglages</span><button type="button" data-close>Fermer</button></h2>
+    <div class="group">
+      <span class="lbl">Sauvegarde</span>
+      <span class="stamp" id="last-backup" style="font-size:14.5px;color:var(--muted)"></span>
+      <span class="hint">Le fichier reste chiffré avec ton mot de passe maître. Range-le dans Fichiers ou iCloud. Pour le récupérer, touche « Restaurer » puis entre le mot de passe maître de cette sauvegarde.</span>
+      <div class="actions" style="margin:0">
+        <button class="btn primary" id="b-export" type="button">Sauvegarder</button>
+        <button class="btn" id="b-import" type="button">Restaurer</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+      <div class="hint" id="import-msg"></div>
+    </div>
+    <div class="group">
+      <span class="lbl">Importer depuis une autre appli</span>
+      <span class="hint">Exporte tes mots de passe depuis ton ancienne appli au format CSV, puis choisis le fichier ici. Supprime ensuite ce fichier CSV : il n'est pas chiffré.</span>
+      <button class="btn" id="b-csv" type="button">Choisir un fichier CSV</button>
+      <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden>
+      <div class="hint" id="csv-msg"></div>
+      <button class="btn go" id="csv-go" type="button" hidden></button>
+    </div>
     <div class="group">
       <span class="lbl">Verrouillage automatique</span>
       <select class="input" id="p-auto">
@@ -269,22 +346,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="err" id="c-err" role="alert"></div>
     </form>
     <div class="group">
-      <span class="lbl">Sauvegarde</span>
-      <span class="stamp" id="last-backup" style="font-size:13.5px;color:var(--muted)"></span>
-      <span class="hint">Le fichier reste chiffré avec ton mot de passe maître. Range-le dans Fichiers ou iCloud pour ne rien perdre si tu changes de téléphone. Pour le restaurer, utilise « Restaurer » puis entre le mot de passe maître de la sauvegarde.</span>
-      <div class="actions" style="margin:0">
-        <button class="btn primary" id="b-export" type="button">Sauvegarder</button>
-        <button class="btn" id="b-import" type="button">Restaurer</button>
-      </div>
-      <input type="file" id="import-file" accept="application/json,.json" hidden>
-      <div class="hint" id="import-msg"></div>
-    </div>
-    <div class="group">
       <span class="lbl">Zone de danger</span>
       <button class="btn danger" id="b-wipe" type="button">Effacer le trousseau de ce téléphone</button>
       <div id="wipe-box" class="form" hidden>
         <span class="hint">Tous tes mots de passe seront supprimés définitivement. Tape EFFACER pour confirmer.</span>
-        <input class="input" id="wipe-txt" autocapitalize="characters" autocomplete="off">
+        <input class="input" id="wipe-txt" autocapitalize="characters" autocomplete="off" aria-label="Taper EFFACER">
         <button class="btn danger" id="wipe-go" type="button">Confirmer l'effacement</button>
       </div>
     </div>
@@ -297,44 +363,67 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.2.0";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
 const enc = new TextEncoder(), dec = new TextDecoder();
 
-let key = null, salt = null, iter = ITER, vault = null, editingId = null;
-let lastActivity = Date.now(), hiddenAt = 0, waitingSW = null;
+let key = null, salt = null, iter = ITER, vault = null;
+let editingId = null, detailId = null, filter = "all", favOnly = false, newCat = "web";
+let lastActivity = Date.now(), hiddenAt = 0, waitingSW = null, swReg = null;
+
+/* ---------- Icônes ---------- */
+const I = {
+  all:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2.3"/><circle cx="12" cy="6" r="2.3"/><circle cx="18" cy="6" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="12" cy="12" r="2.3"/><circle cx="18" cy="12" r="2.3"/><circle cx="6" cy="18" r="2.3"/><circle cx="12" cy="18" r="2.3"/><circle cx="18" cy="18" r="2.3"/></svg>',
+  recent:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>',
+  card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg>',
+  private:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.9M6.2 6.3C3.6 8 2 12 2 12s3.5 7 10 7c1.8 0 3.3-.5 4.6-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  starOn:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  starOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'
+};
+const CATS = { web:{label:"Web",color:"#5dade2"}, card:{label:"Carte bancaire",color:"#f5a623"}, note:{label:"Note",color:"#a0b0c8"}, private:{label:"Privé",color:"#2ecc71"} };
+const FILTERS = [["all","Tous"],["recent","Récents"],["web","Web"],["card","Cartes"],["note","Notes"],["private","Privé"]];
 
 /* ---------- Utilitaires ---------- */
 const b64 = buf => { const a = new Uint8Array(buf); let s = ""; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); };
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const uid = () => b64(crypto.getRandomValues(new Uint8Array(9))).replace(/[+/=]/g, "");
+const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 function readStore(){ try { return JSON.parse(localStorage.getItem(STORE)); } catch { return null; } }
 function prefs(){ try { return JSON.parse(localStorage.getItem(PREFS)) || {}; } catch { return {}; } }
 function setPref(k, v){ const p = prefs(); p[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(p)); } catch {} }
 function show(view){ ["v-setup","v-lock","v-app"].forEach(v => $(v).hidden = v !== view); }
+function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 let toastT;
 function toast(msg, ms = 2200){ const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms); }
-function shake(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+function shake(e){ e.classList.remove("shake"); void e.offsetWidth; e.classList.add("shake"); }
+const fmtDT = t => new Date(t).toLocaleString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }).replace(",", "");
+const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
+function fix(e){ e.cat = e.cat || "web"; e.created = e.created || Date.now(); e.updated = e.updated || e.created; e.pwChanged = e.pwChanged || e.created; return e; }
 
 /* ---------- Chiffrement (PBKDF2 + AES-256-GCM) ---------- */
 async function deriveKey(pw, s, it){
   const base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: s, iterations: it, hash: "SHA-256" }, base,
-    { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  return crypto.subtle.deriveKey({ name:"PBKDF2", salt:s, iterations:it, hash:"SHA-256" }, base, { name:"AES-GCM", length:256 }, false, ["encrypt","decrypt"]);
 }
 async function sealVault(k, s, it, data){
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, enc.encode(JSON.stringify(data)));
-  return { app: "trousseau", v: 1, iter: it, salt: b64(s), iv: b64(iv), ct: b64(ct) };
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv }, k, enc.encode(JSON.stringify(data)));
+  return { app:"trousseau", v:1, iter:it, salt:b64(s), iv:b64(iv), ct:b64(ct) };
 }
 async function openVault(pw, st){
   const s = unb64(st.salt), k = await deriveKey(pw, s, st.iter);
-  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(st.iv) }, k, unb64(st.ct));
+  const pt = await crypto.subtle.decrypt({ name:"AES-GCM", iv:unb64(st.iv) }, k, unb64(st.ct));
   return { k, s, data: JSON.parse(dec.decode(pt)) };
 }
-// Sauvegarde automatique, chiffrée, à chaque modification
+// Enregistrement automatique et chiffré à chaque modification
 async function save(){
   vault.updated = Date.now();
   const sealed = await sealVault(key, salt, iter, vault);
@@ -345,35 +434,34 @@ async function save(){
   return true;
 }
 
-/* ---------- Force du mot de passe ---------- */
+/* ---------- Force ---------- */
 function strength(pw){
+  if (!pw) return 0;
   let sc = 0; if (pw.length >= 8) sc++; if (pw.length >= 12) sc++;
   const kinds = [/[a-z]/, /[A-Z]/, /\d/, /[^\w]/].filter(r => r.test(pw)).length;
   if (kinds >= 3) sc++; if (pw.length >= 16 || (pw.length >= 12 && kinds === 4)) sc++;
   return Math.min(sc, 4);
 }
+const SCOL = ["var(--red)","var(--red)","var(--amber)","var(--green)","var(--green)"];
 $("s-pw").addEventListener("input", e => {
-  const sc = strength(e.target.value), cols = ["var(--red)","var(--red)","var(--amber)","var(--green)","var(--green)"];
-  [...$("s-str").children].forEach((b, i) => b.style.background = i < sc ? cols[sc] : "");
-  $("s-hint").textContent = ["8 caractères minimum. Une phrase de plusieurs mots est idéale.","Trop faible.","Moyen. Allonge-le un peu.","Bon.","Excellent."][e.target.value ? sc : 0];
+  const sc = strength(e.target.value);
+  [...$("s-str").children].forEach((b, i) => b.style.background = i < sc ? SCOL[sc] : "");
+  $("s-hint").textContent = e.target.value ? ["Trop faible.","Trop faible.","Moyen. Allonge-le un peu.","Bon.","Excellent."][sc] : "8 caractères minimum. Une phrase de plusieurs mots est idéale.";
 });
 
 /* ---------- Création / déverrouillage ---------- */
 $("f-setup").addEventListener("submit", async e => {
   e.preventDefault();
-  const pw = $("s-pw").value, pw2 = $("s-pw2").value, err = $("s-err");
+  const pw = $("s-pw").value, err = $("s-err");
   if (pw.length < 8) { err.textContent = "Il faut au moins 8 caractères."; return; }
-  if (pw !== pw2) { err.textContent = "Les deux mots de passe ne sont pas identiques."; shake($("s-pw2")); return; }
+  if (pw !== $("s-pw2").value) { err.textContent = "Les deux mots de passe ne sont pas identiques."; shake($("s-pw2")); return; }
   err.textContent = ""; $("s-go").disabled = true; $("s-go").textContent = "Chiffrement…";
-  salt = crypto.getRandomValues(new Uint8Array(16)); iter = ITER;
-  key = await deriveKey(pw, salt, iter);
-  vault = { entries: [], created: Date.now() };
-  await save();
+  salt = crypto.getRandomValues(new Uint8Array(16)); iter = ITER; key = await deriveKey(pw, salt, iter);
+  vault = { entries: [], created: Date.now() }; await save(); setPref("pending", 0);
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
-  $("s-pw").value = $("s-pw2").value = "";
+  $("s-pw").value = $("s-pw2").value = ""; $("s-go").disabled = false; $("s-go").textContent = "Créer mon trousseau";
   openApp();
 });
-
 let fails = 0;
 $("f-lock").addEventListener("submit", async e => {
   e.preventDefault();
@@ -382,7 +470,7 @@ $("f-lock").addEventListener("submit", async e => {
   btn.disabled = true; btn.textContent = "Déverrouillage…"; err.textContent = "";
   try {
     const r = await openVault($("l-pw").value, st);
-    key = r.k; salt = r.s; iter = st.iter; vault = r.data; fails = 0;
+    key = r.k; salt = r.s; iter = st.iter; vault = r.data; vault.entries.forEach(fix); fails = 0;
     $("l-pw").value = ""; openApp();
   } catch {
     fails++; err.textContent = "Mot de passe incorrect."; shake($("l-pw")); $("l-pw").select();
@@ -396,120 +484,233 @@ $("forgot-go").addEventListener("click", () => {
   try { localStorage.removeItem(STORE); } catch {}
   $("forgot-box").hidden = true; show("v-setup"); toast("Trousseau effacé");
 });
-
-function openApp(){ lastActivity = Date.now(); show("v-app"); $("q").value = ""; render(); }
+function openApp(){ lastActivity = Date.now(); show("v-app"); $("q").value = ""; $("q-clear").hidden = true; filter = "all"; favOnly = false; renderCats(); render(); }
 function lock(){
-  key = null; vault = null; editingId = null;
+  key = null; vault = null; editingId = detailId = null;
   document.querySelectorAll(".backdrop").forEach(b => b.hidden = true);
-  $("list").textContent = ""; $("f-edit").reset();
-  show("v-lock");
-  if (waitingSW) applyUpdate();
+  $("v-detail").hidden = true; $("list").textContent = ""; $("f-edit").reset();
+  show("v-lock"); if (waitingSW) applyUpdate();
 }
 $("b-lock").addEventListener("click", lock);
 
-/* ---------- Liste ---------- */
-const PALETTE = ["#f5a623","#2ecc71","#5dade2","#f0b97a","#7fd8a8","#a0b0c8","#e8c547","#6fc3df"];
-function avColor(s){ let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
-const SVG_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l2.5 2.5M14.5 8.5 16.5 10.5"/></svg>';
-
-function render(){
-  const list = $("list"), q = $("q").value.trim().toLowerCase();
-  const all = vault.entries;
-  const items = all.filter(e => !q || (e.name + " " + e.user + " " + e.url).toLowerCase().includes(q))
-    .sort((a, b) => (b.fav - a.fav) || a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
-  list.textContent = "";
-  if (!all.length) {
-    list.innerHTML = '<div class="empty"><b>Ton trousseau est vide</b>Touche le bouton + pour enregistrer ton premier mot de passe.</div>';
-    return;
-  }
-  const head = document.createElement("div"); head.className = "count";
-  head.innerHTML = '<span class="lbl"></span><span class="lbl"></span>';
-  head.children[0].textContent = q ? "Résultats" : "Tous les accès";
-  head.children[1].textContent = items.length + " / " + all.length;
-  const p = prefs(), pending = p.pending || 0;
-  if (pending > 0 && (!p.lastBackup || Date.now() - p.lastBackup > 7 * 864e5 || pending >= 5)) {
-    const bk = document.createElement("div"); bk.className = "backup";
-    const tx = document.createElement("div"); const tb = document.createElement("b");
-    tb.textContent = pending + " modification" + (pending > 1 ? "s" : "") + " non sauvegardée" + (pending > 1 ? "s" : "");
-    tx.append(tb, document.createTextNode(p.lastBackup ? "Dernière sauvegarde le " + fmtDay(p.lastBackup) : "Aucune sauvegarde pour l'instant"));
-    const bb = document.createElement("button"); bb.className = "btn primary"; bb.textContent = "Sauvegarder";
-    bb.addEventListener("click", exportBackup);
-    bk.append(tx, bb); list.append(bk);
-  }
-  list.append(head);
-  if (!items.length) { const d = document.createElement("div"); d.className = "empty"; d.textContent = "Aucun accès ne correspond à « " + $("q").value + " »."; list.append(d); return; }
-  for (const e of items) {
-    const row = document.createElement("div"); row.className = "entry"; row.setAttribute("role", "button"); row.tabIndex = 0;
-    const av = document.createElement("div"); av.className = "av"; av.style.background = avColor(e.name); av.textContent = (e.name.trim()[0] || "?").toUpperCase();
-    const meta = document.createElement("div"); meta.className = "meta";
-    const b = document.createElement("b"); b.textContent = e.name;
-    if (e.fav) { const s = document.createElement("span"); s.className = "star"; s.textContent = "★"; b.append(s); }
-    const sm = document.createElement("small"); sm.textContent = e.user || "Sans identifiant";
-    meta.append(b, sm);
-    const cp = document.createElement("button"); cp.className = "qcopy"; cp.innerHTML = SVG_COPY;
-    cp.setAttribute("aria-label", "Copier le mot de passe de " + e.name);
-    cp.addEventListener("click", ev => { ev.stopPropagation(); copy(e.pw, "Mot de passe copié"); });
-    row.append(av, meta, cp);
-    row.addEventListener("click", () => openEdit(e.id));
-    row.addEventListener("keydown", ev => { if (ev.key === "Enter") openEdit(e.id); });
-    list.append(row);
+/* ---------- Filtres ---------- */
+function renderCats(){
+  const box = $("cats"); box.textContent = "";
+  for (const [id, label] of FILTERS) {
+    const b = el("button", "cat" + (filter === id ? " on" : "")); b.type = "button"; b.setAttribute("role","tab"); b.setAttribute("aria-selected", filter === id);
+    const c = el("span", "c"); c.innerHTML = I[id]; b.append(c, el("span", null, label));
+    b.addEventListener("click", () => { filter = id; renderCats(); render(); window.scrollTo(0, 0); });
+    box.append(b);
   }
 }
-$("q").addEventListener("input", render);
+$("b-fav").addEventListener("click", () => {
+  favOnly = !favOnly; $("b-fav").classList.toggle("on", favOnly); $("b-fav").setAttribute("aria-pressed", favOnly); render();
+});
+$("q").addEventListener("input", () => { $("q-clear").hidden = !$("q").value; render(); });
+$("q-clear").addEventListener("click", () => { $("q").value = ""; $("q-clear").hidden = true; render(); $("q").blur(); });
+
+/* ---------- Liste ---------- */
+const letterOf = n => { const c = norm(n.trim())[0] || "#"; return /[a-z]/.test(c) ? c.toUpperCase() : "#"; };
+function subtitle(e){
+  if (e.user) return "Nom d'utilisateur : " + e.user;
+  if (e.pw) return "Mot de passe : •••••••••";
+  if (e.notes) return e.notes.split("\n")[0];
+  return CATS[e.cat].label;
+}
+function iconEl(e, big){
+  const d = el("div", "eicon"); d.style.color = CATS[e.cat].color; d.innerHTML = I[e.cat] || I.web; return d;
+}
+function render(){
+  const list = $("list"), raw = $("q").value.trim(), q = norm(raw), all = vault.entries;
+  let items = all.filter(e => (!favOnly || e.fav) && (filter === "all" || filter === "recent" || e.cat === filter)
+    && (!q || norm(e.name + " " + e.user + " " + e.url + " " + e.notes).includes(q)));
+  const recent = filter === "recent";
+  if (recent) items = items.sort((a, b) => b.updated - a.updated).slice(0, 30);
+  else items.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity:"base", numeric:true }));
+  $("list-title").textContent = favOnly ? "Favoris" : (FILTERS.find(f => f[0] === filter)[1] === "Tous" ? "Tous les accès" : FILTERS.find(f => f[0] === filter)[1]);
+  list.textContent = "";
+
+  // Rappel de sauvegarde
+  const p = prefs(), pending = p.pending || 0;
+  if (all.length && pending > 0 && (!p.lastBackup || Date.now() - p.lastBackup > 7 * 864e5 || pending >= 5)) {
+    const bk = el("div", "backup"), tx = el("div");
+    tx.append(el("b", null, pending + " modification" + (pending > 1 ? "s" : "") + " non sauvegardée" + (pending > 1 ? "s" : "")),
+      document.createTextNode(p.lastBackup ? "Dernière sauvegarde le " + fmtDay(p.lastBackup) : "Aucune sauvegarde pour l'instant"));
+    const bb = el("button", "btn primary", "Sauvegarder"); bb.addEventListener("click", exportBackup);
+    bk.append(tx, bb); list.append(bk);
+  }
+
+  if (!all.length) {
+    const d = el("div", "empty"); d.append(el("b", null, "Ton trousseau est vide"),
+      document.createTextNode("Touche le bouton + en bas pour ajouter ton premier accès, ou importe ceux de ton ancienne appli."));
+    const b = el("button", "btn", "Importer depuis une autre appli"); b.addEventListener("click", openSettings); d.append(el("br"), b);
+    list.append(d); $("az").hidden = true; return;
+  }
+  if (!items.length) {
+    const d = el("div", "empty");
+    d.append(el("b", null, "Aucun résultat"), document.createTextNode(raw ? "Rien ne correspond à « " + raw + " »." : "Rien dans cette catégorie pour l'instant."));
+    if (raw || filter !== "all" || favOnly) {
+      const b = el("button", "btn", "Tout afficher");
+      b.addEventListener("click", () => { $("q").value = ""; $("q-clear").hidden = true; filter = "all"; favOnly = false; $("b-fav").classList.remove("on"); renderCats(); render(); });
+      d.append(el("br"), b);
+    }
+    list.append(d); $("az").hidden = true; return;
+  }
+
+  let cur = null; const letters = new Set();
+  for (const e of items) {
+    if (!recent) {
+      const L = letterOf(e.name);
+      if (L !== cur) { cur = L; letters.add(L); const s = el("div", "sec", L); s.id = "sec-" + (L === "#" ? "num" : L); list.append(s); }
+    }
+    const row = el("button", "entry"); row.type = "button";
+    const meta = el("div", "meta"), b = el("b", null, e.name);
+    if (e.fav) b.append(el("span", "star", "★"));
+    meta.append(b, el("small", null, subtitle(e)));
+    row.append(iconEl(e), meta);
+    row.addEventListener("click", () => openDetail(e.id));
+    list.append(row);
+  }
+  // Index A–Z
+  const az = $("az"); az.textContent = "";
+  az.hidden = recent || items.length < 12;
+  if (!az.hidden) {
+    for (const L of ["#", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"]) {
+      const b = el("button", letters.has(L) ? "has" : "", L); b.type = "button"; b.dataset.l = L; b.setAttribute("aria-label", "Aller à " + L); az.append(b);
+    }
+  }
+  measureHeader();
+}
+function jumpTo(L){
+  const keys = ["#", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"], i = keys.indexOf(L);
+  for (let j = i; j < keys.length; j++) { const s = $("sec-" + (keys[j] === "#" ? "num" : keys[j])); if (s) { s.scrollIntoView({ block:"start" }); return; } }
+}
+// Glisser le doigt sur l'index, comme dans Contacts
+function azPick(ev){ const t = document.elementFromPoint(ev.clientX, ev.clientY); if (t && t.dataset && t.dataset.l) jumpTo(t.dataset.l); }
+$("az").addEventListener("pointerdown", ev => { $("az").setPointerCapture(ev.pointerId); azPick(ev); });
+$("az").addEventListener("pointermove", ev => { if (ev.buttons || ev.pointerType === "touch") azPick(ev); });
+function measureHeader(){ document.documentElement.style.setProperty("--hh", $("hdr").offsetHeight + "px"); }
+addEventListener("resize", () => { if (key) measureHeader(); });
 
 /* ---------- Presse-papiers ---------- */
 let clipT;
 async function copy(text, msg){
-  if (!text) { toast("Champ vide."); return; }
+  if (!text) { toast("Ce champ est vide."); return; }
   try { await navigator.clipboard.writeText(text); toast(msg + " · effacé dans 30 s"); }
-  catch { toast("Copie impossible ici. Appuie longuement sur le champ pour copier."); return; }
+  catch { toast("Copie impossible ici. Appuie longuement sur le texte pour le copier."); return; }
   clearTimeout(clipT);
   clipT = setTimeout(() => { if (document.hasFocus()) navigator.clipboard.writeText("").catch(() => {}); }, 30000);
 }
-document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", () =>
-  copy($(b.dataset.copy).value, b.dataset.copy === "e-pw" ? "Mot de passe copié" : "Identifiant copié")));
 
-/* ---------- Fiche ---------- */
+/* ---------- Page Détails ---------- */
+function monthsSince(t){ return Math.floor((Date.now() - t) / (30.44 * 864e5)); }
+function openDetail(id){ detailId = id; renderDetail(); $("v-detail").hidden = false; $("v-detail").scrollTop = 0; }
+function closeDetail(){ $("v-detail").hidden = true; detailId = null; render(); }
+$("d-back").addEventListener("click", closeDetail);
+$("d-edit").addEventListener("click", () => openEdit(detailId));
+
+function renderDetail(){
+  const e = vault.entries.find(x => x.id === detailId); if (!e) { closeDetail(); return; }
+  const body = $("d-body"); body.textContent = "";
+  const head = el("div", "dhead"); head.append(iconEl(e));
+  const nm = el("div", "dname"); nm.append(el("h3", null, e.name));
+  const st = el("button", "ibtn" + (e.fav ? " on" : "")); st.type = "button"; st.innerHTML = e.fav ? I.starOn : I.starOff;
+  st.setAttribute("aria-label", e.fav ? "Retirer des favoris" : "Ajouter aux favoris");
+  st.addEventListener("click", async () => { e.fav = !e.fav; await save(); renderDetail(); toast(e.fav ? "Ajouté aux favoris" : "Retiré des favoris"); });
+  nm.append(st);
+  const tags = el("div", "tags"), tg = el("span", "tag"); tg.innerHTML = I[e.cat]; tg.append(CATS[e.cat].label); tags.append(tg);
+  head.append(nm, tags); body.append(head);
+
+  body.append(el("div", "lbl dsec", "Champs"));
+  const field = (label, value, opts = {}) => {
+    const box = el("div", "fbox"); box.append(el("div", "k", label));
+    const r = el("div", "frow");
+    let v;
+    if (opts.link) { v = el("a", "v", value); v.href = /^https?:\/\//i.test(value) ? value : "https://" + value; v.target = "_blank"; v.rel = "noopener"; }
+    else v = el("div", "v" + (opts.mono ? " mono" : ""), opts.mask ? "•••••••••" : value);
+    r.append(v);
+    if (opts.mask) {
+      let shown = false; const eye = el("button", "mini"); eye.type = "button"; eye.innerHTML = I.eye; eye.setAttribute("aria-label", "Afficher");
+      eye.addEventListener("click", () => { shown = !shown; v.textContent = shown ? value : "•••••••••"; eye.innerHTML = shown ? I.eyeOff : I.eye; });
+      r.append(eye);
+    }
+    if (opts.copy) { const c = el("button", "mini"); c.type = "button"; c.innerHTML = I.copy; c.setAttribute("aria-label", "Copier"); c.addEventListener("click", () => copy(value, opts.copy)); r.append(c); }
+    box.append(r); body.append(box); return box;
+  };
+  if (e.user) field("Nom d'utilisateur", e.user, { copy:"Nom d'utilisateur copié" });
+  if (e.pw) {
+    const box = field("Mot de passe", e.pw, { mask:true, mono:true, copy:"Mot de passe copié" });
+    const sc = strength(e.pw), bar = el("div", "bar"), i = el("i"); i.style.width = Math.max(10, sc * 25) + "%"; i.style.background = SCOL[sc]; bar.append(i); box.append(bar);
+    const warns = [], m = monthsSince(e.pwChanged);
+    if (m >= 24) warns.push(["⏱", "Le mot de passe a plus de " + Math.floor(m / 12) + " ans"]);
+    else if (m >= 6) warns.push(["⏱", "Le mot de passe a plus de " + m + " mois"]);
+    const dups = vault.entries.filter(x => x.id !== e.id && x.pw && x.pw === e.pw);
+    if (dups.length) warns.push(["⧉", "Mot de passe dupliqué (aussi utilisé pour " + dups.slice(0, 3).map(x => x.name).join(", ") + (dups.length > 3 ? "…" : "") + ")"]);
+    if (sc <= 1) warns.push(["!", "Mot de passe faible"]);
+    const w = el("div", "warns");
+    if (warns.length) for (const [ic, tx] of warns) { const r = el("div", "warn"); r.append(el("i", null, ic), el("span", null, tx)); w.append(r); }
+    else { const r = el("div", "warn ok"); r.append(el("i", null, "✓"), el("span", null, "Aucun problème détecté")); w.append(r); }
+    box.append(w);
+  }
+  if (e.url) field("Site web", e.url, { link:true, copy:"Adresse copiée" });
+  if (e.notes) field("Notes", e.notes, { copy:"Notes copiées" });
+  if (!e.user && !e.pw && !e.url && !e.notes) body.append(el("p", "hint", "Aucun champ rempli. Touche le crayon pour compléter cette fiche."));
+
+  body.append(el("div", "lbl dsec", "Information"));
+  const info = el("div", "info");
+  for (const [k, t] of [["Créé", e.created], ["Dernier changement du mot de passe", e.pwChanged], ["Modifié", e.updated]]) {
+    const d = el("div"); d.append(el("span", null, k), el("b", null, fmtDT(t))); info.append(d);
+  }
+  body.append(info);
+}
+
+/* ---------- Modification ---------- */
+function renderSegs(){
+  const box = $("e-cats"); box.textContent = "";
+  for (const id of Object.keys(CATS)) {
+    const b = el("button", "seg" + (newCat === id ? " on" : "")); b.type = "button"; b.innerHTML = I[id];
+    b.append(el("span", null, id === "card" ? "Carte" : CATS[id].label)); b.setAttribute("aria-pressed", newCat === id);
+    b.addEventListener("click", () => { newCat = id; renderSegs(); }); box.append(b);
+  }
+}
 function openSheet(id){ $(id).hidden = false; }
 function closeSheets(){ document.querySelectorAll(".backdrop").forEach(b => b.hidden = true); editingId = null; }
 document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeSheets));
 document.querySelectorAll(".backdrop").forEach(b => b.addEventListener("click", e => { if (e.target === b) closeSheets(); }));
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheets(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!document.querySelector(".backdrop:not([hidden])") && !$("v-detail").hidden) closeDetail(); else closeSheets(); } });
 
-const fmt = t => new Date(t).toLocaleString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 function openEdit(id){
   const e = id ? vault.entries.find(x => x.id === id) : null;
   editingId = e ? e.id : null;
-  $("e-title").textContent = e ? e.name : "Nouvel accès";
-  $("e-name").value = e ? e.name : ""; $("e-user").value = e ? e.user : "";
-  $("e-pw").value = e ? e.pw : ""; $("e-url").value = e ? e.url : "";
-  $("e-notes").value = e ? e.notes : ""; $("e-fav").checked = !!(e && e.fav);
-  $("e-pw").type = "password"; $("gen").hidden = true;
-  $("e-del").hidden = !e; resetDel();
-  $("e-stamp").textContent = e ? "Modifié le " + fmt(e.updated) : "";
+  newCat = e ? e.cat : (["web","card","note","private"].includes(filter) ? filter : "web");
+  $("e-title").textContent = e ? "Modifier" : "Nouvel accès";
+  $("e-name").value = e ? e.name : ""; $("e-user").value = e ? e.user : ""; $("e-pw").value = e ? e.pw : "";
+  $("e-url").value = e ? e.url : ""; $("e-notes").value = e ? e.notes : ""; $("e-fav").checked = !!(e && e.fav);
+  $("e-pw").type = "password"; $("gen").hidden = true; $("e-del").hidden = !e; resetDel(); renderSegs();
   openSheet("sh-edit");
-  if (!e) setTimeout(() => $("e-name").focus(), 250);
 }
 $("b-add").addEventListener("click", () => openEdit(null));
 $("e-eye").addEventListener("click", () => { const p = $("e-pw"); p.type = p.type === "password" ? "text" : "password"; });
-
 $("f-edit").addEventListener("submit", async ev => {
   ev.preventDefault();
-  const name = $("e-name").value.trim();
-  if (!name) { shake($("e-name")); return; }
-  const data = { name, user: $("e-user").value.trim(), pw: $("e-pw").value, url: $("e-url").value.trim(),
-                 notes: $("e-notes").value, fav: $("e-fav").checked, updated: Date.now() };
-  if (editingId) Object.assign(vault.entries.find(x => x.id === editingId), data);
-  else vault.entries.push({ id: uid(), created: Date.now(), ...data });
-  if (await save()) { toast(editingId ? "Modifications enregistrées" : "Accès ajouté"); closeSheets(); render(); }
+  const name = $("e-name").value.trim(); if (!name) { shake($("e-name")); return; }
+  const now = Date.now();
+  const data = { name, cat:newCat, user:$("e-user").value.trim(), pw:$("e-pw").value, url:$("e-url").value.trim(), notes:$("e-notes").value, fav:$("e-fav").checked, updated:now };
+  let id = editingId;
+  if (id) { const e = vault.entries.find(x => x.id === id); if (e.pw !== data.pw) data.pwChanged = now; Object.assign(e, data); }
+  else { id = uid(); vault.entries.push({ id, created:now, pwChanged:now, ...data }); }
+  const wasEdit = !!editingId;
+  if (await save()) {
+    toast(wasEdit ? "Modifications enregistrées" : "Accès ajouté"); closeSheets();
+    if (!$("v-detail").hidden || !wasEdit) openDetail(id); else render();
+  }
 });
-
 let delArmed = false, delT;
 function resetDel(){ delArmed = false; clearTimeout(delT); $("e-del").textContent = "Supprimer"; }
 $("e-del").addEventListener("click", async () => {
   if (!delArmed) { delArmed = true; $("e-del").textContent = "Confirmer ?"; delT = setTimeout(resetDel, 3500); return; }
   vault.entries = vault.entries.filter(x => x.id !== editingId);
-  await save(); toast("Accès supprimé"); closeSheets(); render();
+  await save(); toast("Accès supprimé"); closeSheets(); closeDetail();
 });
 
 /* ---------- Générateur ---------- */
@@ -527,17 +728,19 @@ function generate(len, o){
 $("e-gen-toggle").addEventListener("click", () => $("gen").hidden = !$("gen").hidden);
 $("g-len").addEventListener("input", e => $("g-len-o").textContent = e.target.value);
 $("g-go").addEventListener("click", () => {
-  $("e-pw").value = generate(+$("g-len").value, { u: $("g-u").checked, l: $("g-l").checked, d: $("g-d").checked, s: $("g-s").checked });
+  $("e-pw").value = generate(+$("g-len").value, { u:$("g-u").checked, l:$("g-l").checked, d:$("g-d").checked, s:$("g-s").checked });
   $("e-pw").type = "text"; toast("Mot de passe généré");
 });
 
 /* ---------- Réglages ---------- */
-$("b-settings").addEventListener("click", () => {
+function showLastBackup(){ const p = prefs(); $("last-backup").textContent = p.lastBackup ? "Dernière sauvegarde : " + fmtDay(p.lastBackup) : "Aucune sauvegarde pour l'instant."; }
+function openSettings(){
   $("p-auto").value = String(prefs().auto || 5); $("f-chg").reset(); $("c-err").textContent = "";
-  $("wipe-box").hidden = true; $("import-msg").textContent = ""; showLastBackup(); openSheet("sh-set");
-});
+  $("wipe-box").hidden = true; $("import-msg").textContent = ""; $("csv-msg").textContent = ""; $("csv-go").hidden = true;
+  showLastBackup(); openSheet("sh-set");
+}
+$("b-settings").addEventListener("click", openSettings);
 $("p-auto").addEventListener("change", e => { setPref("auto", +e.target.value); toast("Réglage enregistré"); });
-
 $("f-chg").addEventListener("submit", async e => {
   e.preventDefault();
   const err = $("c-err"), n = $("c-new").value;
@@ -547,48 +750,104 @@ $("f-chg").addEventListener("submit", async e => {
   try { await openVault($("c-old").value, readStore()); }
   catch { err.textContent = "Le mot de passe actuel est incorrect."; $("c-go").disabled = false; $("c-go").textContent = "Changer"; return; }
   salt = crypto.getRandomValues(new Uint8Array(16)); iter = ITER; key = await deriveKey(n, salt, iter);
-  await save(); $("f-chg").reset(); err.textContent = "";
-  $("c-go").disabled = false; $("c-go").textContent = "Changer"; toast("Mot de passe maître changé");
+  await save(); $("f-chg").reset(); err.textContent = ""; $("c-go").disabled = false; $("c-go").textContent = "Changer"; toast("Mot de passe maître changé");
 });
 
-const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
-function showLastBackup(){
-  const p = prefs();
-  $("last-backup").textContent = p.lastBackup ? "Dernière sauvegarde : " + fmtDay(p.lastBackup) : "Aucune sauvegarde pour l'instant.";
-}
-function backupDone(){ setPref("lastBackup", Date.now()); setPref("pending", 0); showLastBackup(); if (key) render(); toast("Sauvegarde enregistrée"); }
+function backupDone(){ setPref("lastBackup", Date.now()); setPref("pending", 0); showLastBackup(); if (key && $("v-detail").hidden) render(); toast("Sauvegarde enregistrée"); }
 async function exportBackup(){
   const data = localStorage.getItem(STORE);
   const name = "trousseau-sauvegarde-" + new Date().toISOString().slice(0, 10) + ".json";
-  const file = new File([data], name, { type: "application/json" });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "Sauvegarde Trousseau" }); backupDone(); return; }
-  } catch (e) { if (e.name === "AbortError") return; }
+  const file = new File([data], name, { type:"application/json" });
+  try { if (navigator.canShare && navigator.canShare({ files:[file] })) { await navigator.share({ files:[file], title:"Sauvegarde Trousseau" }); backupDone(); return; } }
+  catch (e) { if (e.name === "AbortError") return; }
   const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name;
-  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  backupDone();
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); backupDone();
 }
 $("b-export").addEventListener("click", exportBackup);
 $("b-import").addEventListener("click", () => $("import-file").click());
 $("import-file").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
-  const msg = $("import-msg");
-  let st; try { st = JSON.parse(await f.text()); } catch { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
+  const msg = $("import-msg"); let st;
+  try { st = JSON.parse(await f.text()); } catch { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
   if (!st || st.app !== "trousseau" || !st.ct || !st.salt || !st.iv) { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
   try { localStorage.setItem(STORE, JSON.stringify(st)); } catch { msg.textContent = "Impossible d'enregistrer la sauvegarde sur ce téléphone."; return; }
-  lock(); $("l-err").textContent = "Sauvegarde importée. Entre le mot de passe maître de cette sauvegarde.";
+  lock(); $("l-err").textContent = "Sauvegarde restaurée. Entre le mot de passe maître de cette sauvegarde.";
+});
+
+/* ---------- Import CSV ---------- */
+function parseCSV(text){
+  text = text.replace(/^﻿/, "");
+  const first = text.split(/\r?\n/)[0] || "";
+  const sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ";" : (first.includes("\t") && !first.includes(",") ? "\t" : ",");
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === sep) { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
+    else f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim()));
+}
+const HEAD = {
+  name:["name","title","titre","nom","service","site name","account","compte","libelle","intitule"],
+  user:["username","user","login","login name","identifiant","nom d'utilisateur","utilisateur","email","e-mail","courriel","login_username"],
+  pw:["password","mot de passe","pass","pwd","motdepasse","login_password"],
+  url:["url","website","site","site web","web site","adresse","login_uri","web"],
+  notes:["notes","note","comment","comments","commentaire","remarque","extra"]
+};
+let csvPending = [];
+function mapCSV(rows){
+  const h = rows[0].map(x => norm(x.trim()));
+  const idx = {}; for (const k in HEAD) idx[k] = h.findIndex(x => HEAD[k].map(norm).includes(x));
+  if (idx.pw < 0 && idx.user < 0) return null;
+  const extra = h.map((x, i) => i).filter(i => !Object.values(idx).includes(i));
+  const now = Date.now(), out = [];
+  for (const r of rows.slice(1)) {
+    const g = k => idx[k] >= 0 ? (r[idx[k]] || "").trim() : "";
+    let name = g("name"), url = g("url");
+    if (!name && url) { try { name = new URL(/^https?:/i.test(url) ? url : "https://" + url).hostname.replace(/^www\./, ""); } catch { name = url; } }
+    if (!name) name = g("user") || "Sans nom";
+    let notes = idx.notes >= 0 ? (r[idx.notes] || "") : "";
+    const more = extra.map(i => (r[i] || "").trim() ? rows[0][i].trim() + " : " + r[i].trim() : "").filter(Boolean);
+    if (more.length) notes = (notes ? notes + "\n" : "") + more.join("\n");
+    out.push({ id:uid(), name, cat:"web", user:g("user"), pw:idx.pw >= 0 ? (r[idx.pw] || "") : "", url, notes, fav:false, created:now, updated:now, pwChanged:now });
+  }
+  return out;
+}
+$("b-csv").addEventListener("click", () => $("csv-file").click());
+$("csv-file").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  const msg = $("csv-msg"); $("csv-go").hidden = true;
+  let rows; try { rows = parseCSV(await f.text()); } catch { msg.textContent = "Impossible de lire ce fichier."; return; }
+  if (rows.length < 2) { msg.textContent = "Ce fichier ne contient aucun accès."; return; }
+  const items = mapCSV(rows);
+  if (!items) { msg.textContent = "Je ne trouve pas de colonne « mot de passe » ou « identifiant » dans ce fichier. Vérifie qu'il s'agit bien d'un export CSV."; return; }
+  const sig = x => norm(x.name) + "|" + x.user + "|" + x.pw;
+  const have = new Set(vault.entries.map(sig));
+  csvPending = items.filter(x => !have.has(sig(x)));
+  const skipped = items.length - csvPending.length;
+  msg.textContent = items.length + " accès trouvés" + (skipped ? ", dont " + skipped + " déjà dans ton trousseau" : "") + ".";
+  if (csvPending.length) { $("csv-go").textContent = "Importer " + csvPending.length + " accès"; $("csv-go").hidden = false; }
+});
+$("csv-go").addEventListener("click", async () => {
+  vault.entries.push(...csvPending); const n = csvPending.length; csvPending = [];
+  await save(); $("csv-go").hidden = true; $("csv-msg").textContent = n + " accès importés. Pense à supprimer le fichier CSV de ton téléphone.";
+  render(); toast(n + " accès importés");
 });
 
 $("b-wipe").addEventListener("click", () => { $("wipe-box").hidden = false; $("wipe-txt").value = ""; $("wipe-txt").focus(); });
 $("wipe-go").addEventListener("click", () => {
   if ($("wipe-txt").value.trim().toUpperCase() !== "EFFACER") { shake($("wipe-txt")); return; }
   try { localStorage.removeItem(STORE); } catch {}
-  key = vault = null; closeSheets(); show("v-setup"); toast("Trousseau effacé");
+  key = vault = null; closeSheets(); $("v-detail").hidden = true; show("v-setup"); toast("Trousseau effacé");
 });
 $("ver").textContent = "Trousseau v" + APP_VERSION + " · données uniquement sur ce téléphone";
 
 /* ---------- Verrouillage automatique ---------- */
-["pointerdown","keydown","scroll","input"].forEach(t => addEventListener(t, () => lastActivity = Date.now(), { passive: true, capture: true }));
+["pointerdown","keydown","scroll","input"].forEach(t => addEventListener(t, () => lastActivity = Date.now(), { passive:true, capture:true }));
 setInterval(() => { if (key && Date.now() - lastActivity > (prefs().auto || 5) * 60000) lock(); }, 10000);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) hiddenAt = Date.now();
@@ -602,14 +861,9 @@ document.addEventListener("visibilitychange", () => {
 function net(){ $("offline").hidden = navigator.onLine; }
 addEventListener("online", net); addEventListener("offline", net); net();
 
-/* ---------- Mise à jour automatique (service worker) ---------- */
-let swReg = null;
+/* ---------- Mise à jour automatique ---------- */
 function applyUpdate(){ if (waitingSW) waitingSW.postMessage("skipWaiting"); }
-function updateReady(w){
-  waitingSW = w;
-  if (!key) applyUpdate();          // verrouillé : on met à jour tout de suite
-  else $("upd").hidden = false;     // coffre ouvert : on propose, sans interrompre
-}
+function updateReady(w){ waitingSW = w; if (!key) applyUpdate(); else $("upd").hidden = false; }
 $("upd-go").addEventListener("click", applyUpdate);
 if ("serviceWorker" in navigator) {
   let reloading = false;
@@ -619,9 +873,7 @@ if ("serviceWorker" in navigator) {
     if (reg.waiting && navigator.serviceWorker.controller) updateReady(reg.waiting);
     reg.addEventListener("updatefound", () => {
       const nw = reg.installing;
-      nw && nw.addEventListener("statechange", () => {
-        if (nw.state === "installed" && navigator.serviceWorker.controller) updateReady(nw);
-      });
+      nw && nw.addEventListener("statechange", () => { if (nw.state === "installed" && navigator.serviceWorker.controller) updateReady(nw); });
     });
     setInterval(() => reg.update().catch(() => {}), 30 * 60000);
   }).catch(() => {});
@@ -630,9 +882,7 @@ if ("serviceWorker" in navigator) {
 /* ---------- Démarrage ---------- */
 if (!window.crypto || !crypto.subtle) {
   document.body.innerHTML = '<div class="wrap gate"><h1>Connexion sécurisée requise</h1><p class="sub">Ouvre Trousseau depuis une adresse https:// pour activer le chiffrement.</p></div>';
-} else {
-  show(readStore() ? "v-lock" : "v-setup");
-}
+} else show(readStore() ? "v-lock" : "v-setup");
 </script>
 </body>
 </html>
