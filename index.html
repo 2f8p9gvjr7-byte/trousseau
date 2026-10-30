@@ -204,7 +204,8 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="strength" id="s-str"><i></i><i></i><i></i><i></i></div>
       <span class="hint" id="s-hint">8 caractères minimum. Une phrase de plusieurs mots est idéale.</span></div>
     <div class="field"><label class="lbl" for="s-pw2">Confirmer</label>
-      <input class="input" id="s-pw2" type="password" autocomplete="new-password" required></div>
+      <input class="input" id="s-pw2" type="password" autocomplete="new-password" required>
+      <span class="hint" id="s-match"></span></div>
     <div class="field"><label class="lbl" for="s-hint-in">Indice (facultatif)</label>
       <input class="input" id="s-hint-in" maxlength="80" placeholder="Une phrase qui t'aide à t'en souvenir" autocomplete="off">
       <span class="hint">Visible sur l'écran verrouillé. N'écris jamais le mot de passe lui-même.</span></div>
@@ -426,7 +427,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.5.0";
+const APP_VERSION = "1.6.0";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
@@ -568,6 +569,26 @@ $("f-lock").addEventListener("submit", async e => {
   btn.disabled = false; btn.textContent = "Déverrouiller";
 });
 $("l-eye").addEventListener("click", () => { const p = $("l-pw"); p.type = p.type === "password" ? "text" : "password"; });
+
+/* ---------- Œil sur chaque champ de mot de passe ---------- */
+const EYE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.9M6.2 6.3C3.6 8 2 12 2 12s3.5 7 10 7c1.8 0 3.3-.5 4.6-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+function addEye(id){
+  const inp = $(id), row = document.createElement("div"); row.className = "row";
+  inp.parentNode.insertBefore(row, inp); row.append(inp);
+  const b = document.createElement("button"); b.type = "button"; b.className = "ibtn"; b.style.cssText = "border-radius:12px;height:auto";
+  b.innerHTML = EYE_SVG; b.setAttribute("aria-label", "Afficher le mot de passe");
+  b.addEventListener("click", () => { const show = inp.type === "password"; inp.type = show ? "text" : "password"; b.innerHTML = show ? EYE_OFF_SVG : EYE_SVG; });
+  row.append(b);
+}
+["s-pw","s-pw2","c-old","c-new","c-new2","r-pw","r-pw2"].forEach(addEye);
+function matchHint(a, b, out){
+  const h = $(out), v1 = $(a).value, v2 = $(b).value;
+  if (!v2) { h.textContent = ""; return; }
+  const ok = v1 === v2; h.textContent = ok ? "✓ Les deux mots de passe sont identiques" : "Pas encore identiques";
+  h.style.color = ok ? "var(--green)" : "var(--faint)";
+}
+["s-pw","s-pw2"].forEach(id => $(id).addEventListener("input", () => matchHint("s-pw","s-pw2","s-match")));
 
 /* ---------- Mot de passe oublié ---------- */
 $("l-forgot").addEventListener("click", () => {
@@ -978,7 +999,7 @@ function openSettings(){
   $("rc-new").textContent = hdr.wrc ? "Créer une nouvelle clé de secours" : "Créer ma clé de secours";
   $("h-in").value = hdr.hint || "";
   $("fid-set-err").textContent = ""; refreshFidSettings();
-  $("c-bio").hidden = !bioSession; $("c-old").hidden = bioSession;
+  $("c-bio").hidden = !bioSession; $("c-old").parentNode.hidden = bioSession;
   showLastBackup(); openSheet("sh-set");
 }
 $("rc-new").addEventListener("click", newRescue);
