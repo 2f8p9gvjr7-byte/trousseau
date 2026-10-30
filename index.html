@@ -426,7 +426,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.5.0";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
@@ -746,6 +746,24 @@ function render(){
     const bk = el("div", "backup"), tx = el("div");
     tx.append(el("b", null, "Crée ta clé de secours"), document.createTextNode("Elle te permettra de récupérer ton trousseau si tu oublies ton mot de passe maître."));
     const bb = el("button", "btn primary", "Créer"); bb.addEventListener("click", newRescue);
+    bk.append(tx, bb); list.append(bk);
+  }
+  // Proposer Face ID tant qu'il n'est pas activé
+  if (hdr.wrc && !hdr.fid && fidAvailable() && !prefs().fidLater) {
+    const bk = el("div", "backup"), tx = el("div");
+    bk.style.borderColor = "rgba(46,204,113,.5)"; bk.style.background = "rgba(46,204,113,.1)";
+    const tb = el("b", null, "Ouvre ton trousseau avec Face ID"); tb.style.color = "var(--green)";
+    tx.append(tb, document.createTextNode("Plus besoin de taper ton mot de passe maître. "));
+    const later = el("button", null, "Plus tard");
+    later.style.cssText = "border:none;background:none;padding:0;color:var(--faint);font-weight:600;text-decoration:underline";
+    later.addEventListener("click", () => { setPref("fidLater", true); render(); });
+    tx.append(later);
+    const bb = el("button", "btn go", "Activer");
+    bb.addEventListener("click", async () => {
+      bb.disabled = true;
+      try { await enableFaceID(); toast("Face ID activé"); render(); }
+      catch (e) { toast(fidError(e), 4500); bb.disabled = false; }
+    });
     bk.append(tx, bb); list.append(bk);
   }
   // Rappel de sauvegarde

@@ -1,7 +1,7 @@
 // Trousseau — service worker
 // Pour publier une nouvelle version : modifie l'appli, puis change VERSION ci-dessous.
 // Les téléphones la récupèrent automatiquement à la prochaine ouverture avec du réseau.
-const VERSION = "1.4.0";
+const VERSION = "1.5.0";
 const CACHE = "trousseau-" + VERSION;
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
