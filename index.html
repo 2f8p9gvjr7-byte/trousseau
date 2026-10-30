@@ -205,7 +205,10 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <span class="hint" id="s-hint">8 caractères minimum. Une phrase de plusieurs mots est idéale.</span></div>
     <div class="field"><label class="lbl" for="s-pw2">Confirmer</label>
       <input class="input" id="s-pw2" type="password" autocomplete="new-password" required></div>
-    <p class="hint">Personne ne pourra le récupérer si tu l'oublies. Note-le dans un endroit sûr.</p>
+    <div class="field"><label class="lbl" for="s-hint-in">Indice (facultatif)</label>
+      <input class="input" id="s-hint-in" maxlength="80" placeholder="Une phrase qui t'aide à t'en souvenir" autocomplete="off">
+      <span class="hint">Visible sur l'écran verrouillé. N'écris jamais le mot de passe lui-même.</span></div>
+    <p class="hint">À l'étape suivante, tu recevras une clé de secours pour récupérer ton trousseau si tu oublies ce mot de passe.</p>
     <button class="btn primary" id="s-go" type="submit">Créer mon trousseau</button>
     <div class="err" id="s-err" role="alert"></div>
   </form>
@@ -214,19 +217,59 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 <!-- Déverrouillage -->
 <section id="v-lock" class="wrap gate" hidden>
   <div class="dial" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.6" r="1.4" fill="#f5a623"/></svg></div>
-  <div><h1>Trousseau verrouillé</h1><p class="sub">Entre ton mot de passe maître pour accéder au coffre.</p></div>
+  <div><h1>Trousseau verrouillé</h1><p class="sub" id="l-sub">Entre ton mot de passe maître pour accéder au coffre.</p></div>
+  <div class="form" id="fid-box" hidden>
+    <button class="btn go" id="fid-go" type="button" style="padding:16px;font-size:17px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:24px;height:24px"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M9 9v1.5M15 9v1.5M12 9v4.5h-1M9.5 16.5c1.5 1 3.5 1 5 0"/></svg>
+      Déverrouiller avec Face ID</button>
+    <div class="err" id="fid-err" role="alert"></div>
+    <span class="hint" style="text-align:center">ou avec ton mot de passe maître</span>
+  </div>
   <form id="f-lock" class="form" autocomplete="off">
     <div class="field"><label class="lbl" for="l-pw">Mot de passe maître</label>
-      <input class="input" id="l-pw" type="password" autocomplete="current-password" required></div>
+      <div class="row"><input class="input" id="l-pw" type="password" autocomplete="current-password" required>
+        <button type="button" class="ibtn" id="l-eye" aria-label="Afficher le mot de passe" style="border-radius:12px;height:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <button class="btn primary" id="l-go" type="submit">Déverrouiller</button>
     <div class="err" id="l-err" role="alert"></div>
+    <div class="hint" id="l-hint" style="text-align:center" hidden></div>
   </form>
   <button class="btn ghost" id="l-forgot" type="button">Mot de passe oublié ?</button>
-  <div id="forgot-box" class="form" hidden>
-    <span class="hint">Sans le mot de passe maître, personne ne peut ouvrir le coffre. Tu peux tout effacer et repartir de zéro, puis restaurer une sauvegarde si tu en as une. Tape EFFACER pour confirmer.</span>
-    <input class="input" id="forgot-txt" autocapitalize="characters" autocomplete="off" aria-label="Taper EFFACER">
-    <button class="btn danger" id="forgot-go" type="button">Effacer et recommencer</button>
+
+  <form id="rec-box" class="form" autocomplete="off" hidden>
+    <span class="lbl">Récupérer avec la clé de secours</span>
+    <span class="hint">Entre la clé de secours reçue à la création de ton trousseau, puis choisis un nouveau mot de passe maître. Tes mots de passe sont conservés.</span>
+    <input class="input mono" id="r-code" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" autocapitalize="characters" autocorrect="off" spellcheck="false" required aria-label="Clé de secours">
+    <input class="input" id="r-pw" type="password" placeholder="Nouveau mot de passe maître (8 caractères min.)" autocomplete="new-password" required minlength="8">
+    <input class="input" id="r-pw2" type="password" placeholder="Confirmer le nouveau" autocomplete="new-password" required>
+    <button class="btn go" id="r-go" type="submit">Récupérer mon trousseau</button>
+    <div class="err" id="r-err" role="alert"></div>
+  </form>
+
+  <div id="norec-box" class="form" hidden>
+    <span class="hint" id="norec-txt"></span>
+    <button class="btn ghost" id="wipe-show" type="button" style="color:var(--red)">Je n'ai aucun moyen de le retrouver</button>
+    <div id="forgot-box" class="form" hidden>
+      <span class="hint">Tout sera effacé de ce téléphone. Tu pourras ensuite restaurer une sauvegarde si tu en as une. Tape EFFACER pour confirmer.</span>
+      <input class="input" id="forgot-txt" autocapitalize="characters" autocomplete="off" aria-label="Taper EFFACER">
+      <button class="btn danger" id="forgot-go" type="button">Effacer et recommencer</button>
+    </div>
   </div>
+</section>
+
+<!-- Clé de secours -->
+<section id="v-rescue" class="wrap gate" hidden>
+  <div class="dial" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l2.5 2.5M14.5 8.5l2 2"/></svg></div>
+  <div><h1>Ta clé de secours</h1><p class="sub">Si tu oublies ton mot de passe maître, cette clé te permettra d'en choisir un nouveau sans rien perdre.</p></div>
+  <div class="fbox" style="text-align:center;margin:0">
+    <div id="rc-show" style="font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:.06em;color:var(--green);overflow-wrap:anywhere;user-select:all;-webkit-user-select:all"></div>
+  </div>
+  <div class="actions" style="margin:0">
+    <button class="btn" id="rc-copy" type="button">Copier</button>
+    <button class="btn" id="rc-save" type="button">Enregistrer</button>
+  </div>
+  <p class="hint">Le plus sûr : écris-la sur papier et range-la chez toi, ou garde-la dans l'app Mots de passe de l'iPhone. Ne la garde pas seulement dans Trousseau. Elle ne sera plus affichée ensuite.</p>
+  <label class="fav"><input type="checkbox" id="rc-ok">J'ai bien noté ma clé de secours</label>
+  <button class="btn primary" id="rc-done" type="button" disabled>Continuer</button>
 </section>
 
 <!-- Liste -->
@@ -321,6 +364,25 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="hint" id="import-msg"></div>
     </div>
     <div class="group">
+      <span class="lbl">Face ID</span>
+      <span class="stamp" id="fid-status" style="font-size:14.5px;color:var(--muted)"></span>
+      <span class="hint">Ouvre ton trousseau d'un regard. Ton mot de passe maître reste valable, garde-le quand même en tête. Nécessite iOS 18 ou plus récent.</span>
+      <button class="btn" id="fid-toggle" type="button"></button>
+      <div class="err" id="fid-set-err" role="alert" style="text-align:left"></div>
+    </div>
+    <div class="group">
+      <span class="lbl">Clé de secours</span>
+      <span class="stamp" id="rc-status" style="font-size:14.5px;color:var(--muted)"></span>
+      <span class="hint">Une nouvelle clé remplace l'ancienne, qui ne fonctionnera plus.</span>
+      <button class="btn" id="rc-new" type="button">Créer une nouvelle clé de secours</button>
+    </div>
+    <div class="group">
+      <span class="lbl">Indice du mot de passe</span>
+      <div class="row"><input class="input" id="h-in" maxlength="80" placeholder="Aucun indice" autocomplete="off" aria-label="Indice">
+        <button class="btn" id="h-save" type="button">OK</button></div>
+      <span class="hint">Visible sur l'écran verrouillé après une erreur. N'écris jamais le mot de passe lui-même.</span>
+    </div>
+    <div class="group">
       <span class="lbl">Importer depuis une autre appli</span>
       <span class="hint">Exporte tes mots de passe depuis ton ancienne appli au format CSV, puis choisis le fichier ici. Supprime ensuite ce fichier CSV : il n'est pas chiffré.</span>
       <button class="btn" id="b-csv" type="button">Choisir un fichier CSV</button>
@@ -339,7 +401,8 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     </div>
     <form class="group" id="f-chg" autocomplete="off">
       <span class="lbl">Changer le mot de passe maître</span>
-      <input class="input" id="c-old" type="password" placeholder="Mot de passe actuel" required autocomplete="current-password">
+      <input class="input" id="c-old" type="password" placeholder="Mot de passe actuel" autocomplete="current-password">
+      <span class="hint" id="c-bio" hidden>Ouvert avec Face ID : pas besoin du mot de passe actuel.</span>
       <input class="input" id="c-new" type="password" placeholder="Nouveau (8 caractères min.)" required minlength="8" autocomplete="new-password">
       <input class="input" id="c-new2" type="password" placeholder="Confirmer le nouveau" required autocomplete="new-password">
       <button class="btn primary" type="submit" id="c-go">Changer</button>
@@ -363,7 +426,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.4.0";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
@@ -399,7 +462,7 @@ const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase
 function readStore(){ try { return JSON.parse(localStorage.getItem(STORE)); } catch { return null; } }
 function prefs(){ try { return JSON.parse(localStorage.getItem(PREFS)) || {}; } catch { return {}; } }
 function setPref(k, v){ const p = prefs(); p[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(p)); } catch {} }
-function show(view){ ["v-setup","v-lock","v-app"].forEach(v => $(v).hidden = v !== view); }
+function show(view){ ["v-setup","v-lock","v-app","v-rescue"].forEach(v => $(v).hidden = v !== view); }
 function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 let toastT;
 function toast(msg, ms = 2200){ const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms); }
@@ -408,27 +471,51 @@ const fmtDT = t => new Date(t).toLocaleString("fr-FR", { day:"2-digit", month:"2
 const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 function fix(e){ e.cat = e.cat || "web"; e.created = e.created || Date.now(); e.updated = e.updated || e.created; e.pwChanged = e.pwChanged || e.created; return e; }
 
-/* ---------- Chiffrement (PBKDF2 + AES-256-GCM) ---------- */
-async function deriveKey(pw, s, it){
-  const base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+/* ---------- Chiffrement ----------
+   Le trousseau est chiffré (AES-256-GCM) par une clé aléatoire.
+   Cette clé est elle-même enfermée deux fois : par le mot de passe maître et par la clé de secours.
+   L'une ou l'autre suffit pour ouvrir le coffre. */
+const RC_ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", RC_ITER = 200000;
+let dekRaw = null, hdr = null;   // clé du coffre (en mémoire seulement si déverrouillé) et en-tête stocké
+async function deriveKey(secret, s, it){
+  const base = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
   return crypto.subtle.deriveKey({ name:"PBKDF2", salt:s, iterations:it, hash:"SHA-256" }, base, { name:"AES-GCM", length:256 }, false, ["encrypt","decrypt"]);
 }
-async function sealVault(k, s, it, data){
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv }, k, enc.encode(JSON.stringify(data)));
-  return { app:"trousseau", v:1, iter:it, salt:b64(s), iv:b64(iv), ct:b64(ct) };
+async function wrapRaw(k, raw){ const iv = crypto.getRandomValues(new Uint8Array(12)); return { iv:b64(iv), ct:b64(await crypto.subtle.encrypt({ name:"AES-GCM", iv }, k, raw)) }; }
+async function unwrapRaw(k, w){ return new Uint8Array(await crypto.subtle.decrypt({ name:"AES-GCM", iv:unb64(w.iv) }, k, unb64(w.ct))); }
+const importDek = raw => crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt","decrypt"]);
+async function decryptVault(k, st){ return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name:"AES-GCM", iv:unb64(st.iv) }, k, unb64(st.ct)))); }
+const cleanRC = s => (s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+function newRecoveryCode(){ let s = ""; for (let i = 0; i < 24; i++) s += RC_ALPHA[rnd(RC_ALPHA.length)]; return s.match(/.{4}/g).join("-"); }
+async function setPassword(pw){
+  const s = crypto.getRandomValues(new Uint8Array(16));
+  hdr.salt = b64(s); hdr.iter = ITER; hdr.wpw = await wrapRaw(await deriveKey(pw, s, ITER), dekRaw);
 }
-async function openVault(pw, st){
-  const s = unb64(st.salt), k = await deriveKey(pw, s, st.iter);
-  const pt = await crypto.subtle.decrypt({ name:"AES-GCM", iv:unb64(st.iv) }, k, unb64(st.ct));
-  return { k, s, data: JSON.parse(dec.decode(pt)) };
+async function setRecovery(){
+  const code = newRecoveryCode(), s = crypto.getRandomValues(new Uint8Array(16));
+  hdr.rsalt = b64(s); hdr.rit = RC_ITER; hdr.wrc = await wrapRaw(await deriveKey(cleanRC(code), s, RC_ITER), dekRaw);
+  return code;
+}
+// Ouvre le coffre avec le mot de passe (gère aussi l'ancien format v1, converti au passage)
+async function unlockWith(pw, st){
+  if (st.v === 2) {
+    const raw = await unwrapRaw(await deriveKey(pw, unb64(st.salt), st.iter), st.wpw);
+    const k = await importDek(raw), data = await decryptVault(k, st);
+    hdr = st; dekRaw = raw; key = k; vault = data; return false;
+  }
+  const data = await decryptVault(await deriveKey(pw, unb64(st.salt), st.iter), st);
+  dekRaw = crypto.getRandomValues(new Uint8Array(32)); key = await importDek(dekRaw);
+  hdr = { app:"trousseau", v:2, hint:st.hint || "" }; vault = data;
+  await setPassword(pw); await save(true); return true;
 }
 // Enregistrement automatique et chiffré à chaque modification
-async function save(){
+async function save(silent){
   vault.updated = Date.now();
-  const sealed = await sealVault(key, salt, iter, vault);
-  try { localStorage.setItem(STORE, JSON.stringify(sealed)); }
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  hdr.iv = b64(iv); hdr.ct = b64(await crypto.subtle.encrypt({ name:"AES-GCM", iv }, key, enc.encode(JSON.stringify(vault))));
+  try { localStorage.setItem(STORE, JSON.stringify(hdr)); }
   catch { toast("Espace de stockage plein : la modification n'a pas été enregistrée.", 4000); return false; }
+  if (silent) return true;
   setPref("pending", (prefs().pending || 0) + 1);
   const c = $("saved"); c.textContent = "ENREGISTRÉ ✓"; setTimeout(() => c.textContent = "CHIFFRÉ ✓", 1500);
   return true;
@@ -456,11 +543,13 @@ $("f-setup").addEventListener("submit", async e => {
   if (pw.length < 8) { err.textContent = "Il faut au moins 8 caractères."; return; }
   if (pw !== $("s-pw2").value) { err.textContent = "Les deux mots de passe ne sont pas identiques."; shake($("s-pw2")); return; }
   err.textContent = ""; $("s-go").disabled = true; $("s-go").textContent = "Chiffrement…";
-  salt = crypto.getRandomValues(new Uint8Array(16)); iter = ITER; key = await deriveKey(pw, salt, iter);
-  vault = { entries: [], created: Date.now() }; await save(); setPref("pending", 0);
+  dekRaw = crypto.getRandomValues(new Uint8Array(32)); key = await importDek(dekRaw);
+  hdr = { app:"trousseau", v:2, hint:$("s-hint-in").value.trim() };
+  vault = { entries: [], created: Date.now() };
+  await setPassword(pw); const code = await setRecovery(); await save(true); setPref("pending", 0);
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
-  $("s-pw").value = $("s-pw2").value = ""; $("s-go").disabled = false; $("s-go").textContent = "Créer mon trousseau";
-  openApp();
+  $("f-setup").reset(); $("s-go").disabled = false; $("s-go").textContent = "Créer mon trousseau";
+  showRescue(code);
 });
 let fails = 0;
 $("f-lock").addEventListener("submit", async e => {
@@ -469,27 +558,149 @@ $("f-lock").addEventListener("submit", async e => {
   if (!st) { show("v-setup"); return; }
   btn.disabled = true; btn.textContent = "Déverrouillage…"; err.textContent = "";
   try {
-    const r = await openVault($("l-pw").value, st);
-    key = r.k; salt = r.s; iter = st.iter; vault = r.data; vault.entries.forEach(fix); fails = 0;
-    $("l-pw").value = ""; openApp();
+    await unlockWith($("l-pw").value, st);
+    vault.entries.forEach(fix); fails = 0; bioSession = false; $("l-pw").value = ""; $("l-pw").type = "password"; $("l-hint").hidden = true; openApp();
   } catch {
-    fails++; err.textContent = "Mot de passe incorrect."; shake($("l-pw")); $("l-pw").select();
+    fails++; err.textContent = "Mot de passe incorrect. Vérifie avec l'œil ce que tu as tapé."; shake($("l-pw")); $("l-pw").select();
+    if (st.hint) { $("l-hint").textContent = "Indice : " + st.hint; $("l-hint").hidden = false; }
     await new Promise(r => setTimeout(r, Math.min(500 * 2 ** Math.max(0, fails - 3), 30000)));
   }
   btn.disabled = false; btn.textContent = "Déverrouiller";
 });
-$("l-forgot").addEventListener("click", () => { $("forgot-box").hidden = !$("forgot-box").hidden; $("forgot-txt").value = ""; });
+$("l-eye").addEventListener("click", () => { const p = $("l-pw"); p.type = p.type === "password" ? "text" : "password"; });
+
+/* ---------- Mot de passe oublié ---------- */
+$("l-forgot").addEventListener("click", () => {
+  const st = readStore() || {}, has = !!st.wrc;
+  const open = has ? !$("rec-box").hidden : !$("norec-box").hidden;
+  $("rec-box").hidden = !has || open; $("forgot-box").hidden = true; $("forgot-txt").value = "";
+  $("norec-box").hidden = open;
+  $("norec-txt").textContent = has
+    ? "Tu n'as plus ta clé de secours ? Regarde aussi dans l'app Mots de passe de l'iPhone : il a peut-être enregistré ton mot de passe maître."
+    : "Ce trousseau a été créé avant l'arrivée de la clé de secours. Regarde dans l'app Mots de passe de l'iPhone : il a peut-être enregistré ton mot de passe maître. Sinon, il ne peut pas être ouvert.";
+});
+$("wipe-show").addEventListener("click", () => { $("forgot-box").hidden = !$("forgot-box").hidden; });
 $("forgot-go").addEventListener("click", () => {
   if ($("forgot-txt").value.trim().toUpperCase() !== "EFFACER") { shake($("forgot-txt")); return; }
   try { localStorage.removeItem(STORE); } catch {}
-  $("forgot-box").hidden = true; show("v-setup"); toast("Trousseau effacé");
+  $("norec-box").hidden = $("rec-box").hidden = true; show("v-setup"); toast("Trousseau effacé");
 });
+$("rec-box").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = readStore(), err = $("r-err"), btn = $("r-go"), pw = $("r-pw").value;
+  if (cleanRC($("r-code").value).length !== 24) { err.textContent = "La clé de secours fait 24 caractères (6 groupes de 4)."; shake($("r-code")); return; }
+  if (pw.length < 8) { err.textContent = "Le nouveau mot de passe doit faire 8 caractères minimum."; return; }
+  if (pw !== $("r-pw2").value) { err.textContent = "Les deux nouveaux mots de passe ne sont pas identiques."; shake($("r-pw2")); return; }
+  btn.disabled = true; btn.textContent = "Vérification…"; err.textContent = "";
+  try {
+    const raw = await unwrapRaw(await deriveKey(cleanRC($("r-code").value), unb64(st.rsalt), st.rit), st.wrc);
+    const k = await importDek(raw), data = await decryptVault(k, st);
+    hdr = st; dekRaw = raw; key = k; vault = data; vault.entries.forEach(fix);
+    await setPassword(pw); await save(true);
+    $("rec-box").reset(); $("rec-box").hidden = $("norec-box").hidden = true; fails = 0;
+    openApp(); toast("Trousseau récupéré · nouveau mot de passe enregistré", 3500);
+  } catch { err.textContent = "Cette clé de secours ne correspond pas à ce trousseau."; shake($("r-code")); }
+  btn.disabled = false; btn.textContent = "Récupérer mon trousseau";
+});
+
+/* ---------- Écran de la clé de secours ---------- */
+let rcCode = "", rcThen = null;
+function showRescue(code, then){
+  rcCode = code; rcThen = then || openApp;
+  $("rc-show").textContent = code; $("rc-ok").checked = false; $("rc-done").disabled = true;
+  closeSheets(); $("v-detail").hidden = true; show("v-rescue"); window.scrollTo(0, 0);
+}
+$("rc-ok").addEventListener("change", e => $("rc-done").disabled = !e.target.checked);
+$("rc-copy").addEventListener("click", () => copy(rcCode, "Clé de secours copiée"));
+$("rc-save").addEventListener("click", async () => {
+  const txt = "Clé de secours Trousseau\n\n" + rcCode + "\n\nCréée le " + fmtDay(Date.now()) + ".\nElle permet de choisir un nouveau mot de passe maître si tu l'oublies.\n";
+  const file = new File([txt], "trousseau-cle-de-secours.txt", { type:"text/plain" });
+  try { if (navigator.canShare && navigator.canShare({ files:[file] })) { await navigator.share({ files:[file], title:"Clé de secours Trousseau" }); return; } }
+  catch (e) { if (e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = file.name;
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+});
+$("rc-done").addEventListener("click", () => { rcCode = ""; $("rc-show").textContent = ""; const f = rcThen; rcThen = null; f(); });
+async function newRescue(){ const code = await setRecovery(); await save(true); showRescue(code, () => { openApp(); toast("Nouvelle clé de secours active"); }); }
+
+/* ---------- Face ID (clé d'accès + extension PRF, iOS 18+) ----------
+   Face ID débloque une troisième boîte qui contient la clé du coffre. */
+let bioSession = false;
+const fidAvailable = () => !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create);
+async function prfKey(out){
+  const base = await crypto.subtle.importKey("raw", out, "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name:"HKDF", hash:"SHA-256", salt:new Uint8Array(0), info:enc.encode("trousseau-faceid") }, base, { name:"AES-GCM", length:256 }, false, ["encrypt","decrypt"]);
+}
+async function prfGet(cid, psalt){
+  const a = await navigator.credentials.get({ publicKey:{
+    challenge:crypto.getRandomValues(new Uint8Array(32)), rpId:location.hostname, userVerification:"required", timeout:60000,
+    allowCredentials:[{ type:"public-key", id:cid }], extensions:{ prf:{ eval:{ first:psalt } } } } });
+  const r = a.getClientExtensionResults();
+  return r.prf && r.prf.results && r.prf.results.first;
+}
+function fidError(e){
+  if (e && (e.name === "NotAllowedError" || e.name === "AbortError")) return "Face ID annulé.";
+  if (e === "noprf") return "Cet iPhone ne permet pas encore Face ID pour Trousseau. Mets à jour iOS (version 18 ou plus récente).";
+  if (e && e.name === "SecurityError") return "Face ID n'est disponible que depuis l'adresse https de ton appli.";
+  return "Face ID n'a pas fonctionné. Réessaie, ou utilise ton mot de passe maître.";
+}
+async function enableFaceID(){
+  const psalt = crypto.getRandomValues(new Uint8Array(32));
+  const cred = await navigator.credentials.create({ publicKey:{
+    rp:{ name:"Trousseau", id:location.hostname },
+    user:{ id:crypto.getRandomValues(new Uint8Array(16)), name:"Trousseau", displayName:"Trousseau (Face ID)" },
+    challenge:crypto.getRandomValues(new Uint8Array(32)),
+    pubKeyCredParams:[{ type:"public-key", alg:-7 }, { type:"public-key", alg:-257 }],
+    authenticatorSelection:{ authenticatorAttachment:"platform", residentKey:"required", userVerification:"required" },
+    timeout:60000, extensions:{ prf:{ eval:{ first:psalt } } } } });
+  const ext = cred.getClientExtensionResults();
+  if (!ext.prf || ext.prf.enabled === false) throw "noprf";
+  let out = ext.prf.results && ext.prf.results.first;
+  if (!out) out = await prfGet(cred.rawId, psalt);   // iOS demande parfois un second regard
+  if (!out) throw "noprf";
+  hdr.fid = { cid:b64(cred.rawId), psalt:b64(psalt), w:await wrapRaw(await prfKey(out), dekRaw) };
+  await save(true);
+}
+$("fid-toggle").addEventListener("click", async () => {
+  const err = $("fid-set-err"); err.textContent = "";
+  if (hdr.fid) { delete hdr.fid; await save(true); refreshFidSettings(); toast("Face ID désactivé"); return; }
+  if (!fidAvailable()) { err.textContent = fidError("noprf"); return; }
+  $("fid-toggle").disabled = true;
+  try { await enableFaceID(); toast("Face ID activé"); }
+  catch (e) { err.textContent = fidError(e); }
+  $("fid-toggle").disabled = false; refreshFidSettings();
+});
+function refreshFidSettings(){
+  $("fid-status").textContent = hdr.fid ? "Activé ✓" : "Désactivé";
+  $("fid-status").style.color = hdr.fid ? "var(--green)" : "var(--muted)";
+  $("fid-toggle").textContent = hdr.fid ? "Désactiver Face ID" : "Activer Face ID";
+}
+function refreshLockUI(){
+  const st = readStore(), on = !!(st && st.fid && fidAvailable());
+  $("fid-box").hidden = !on; $("fid-err").textContent = "";
+  $("l-sub").textContent = on ? "Regarde ton iPhone pour accéder au coffre." : "Entre ton mot de passe maître pour accéder au coffre.";
+}
+$("fid-go").addEventListener("click", async () => {
+  const st = readStore(), btn = $("fid-go"), err = $("fid-err");
+  if (!st || !st.fid) return;
+  btn.disabled = true; err.textContent = "";
+  try {
+    const out = await prfGet(unb64(st.fid.cid), unb64(st.fid.psalt)); if (!out) throw "noprf";
+    const raw = await unwrapRaw(await prfKey(out), st.fid.w);
+    const k = await importDek(raw), data = await decryptVault(k, st);
+    hdr = st; dekRaw = raw; key = k; vault = data; vault.entries.forEach(fix); bioSession = true; fails = 0;
+    openApp();
+  } catch (e) { err.textContent = fidError(e); }
+  btn.disabled = false;
+});
+
 function openApp(){ lastActivity = Date.now(); show("v-app"); $("q").value = ""; $("q-clear").hidden = true; filter = "all"; favOnly = false; renderCats(); render(); }
 function lock(){
-  key = null; vault = null; editingId = detailId = null;
+  key = null; vault = null; dekRaw = null; editingId = detailId = null; rcCode = "";
   document.querySelectorAll(".backdrop").forEach(b => b.hidden = true);
-  $("v-detail").hidden = true; $("list").textContent = ""; $("f-edit").reset();
-  show("v-lock"); if (waitingSW) applyUpdate();
+  $("v-detail").hidden = true; $("list").textContent = ""; $("f-edit").reset(); $("rc-show").textContent = "";
+  $("rec-box").hidden = $("norec-box").hidden = true; $("l-err").textContent = ""; $("l-hint").hidden = true; $("toast").hidden = true;
+  bioSession = false; refreshLockUI(); show("v-lock"); if (waitingSW) applyUpdate();
 }
 $("b-lock").addEventListener("click", lock);
 
@@ -530,6 +741,13 @@ function render(){
   $("list-title").textContent = favOnly ? "Favoris" : (FILTERS.find(f => f[0] === filter)[1] === "Tous" ? "Tous les accès" : FILTERS.find(f => f[0] === filter)[1]);
   list.textContent = "";
 
+  // Clé de secours manquante (trousseau créé avec une ancienne version)
+  if (!hdr.wrc) {
+    const bk = el("div", "backup"), tx = el("div");
+    tx.append(el("b", null, "Crée ta clé de secours"), document.createTextNode("Elle te permettra de récupérer ton trousseau si tu oublies ton mot de passe maître."));
+    const bb = el("button", "btn primary", "Créer"); bb.addEventListener("click", newRescue);
+    bk.append(tx, bb); list.append(bk);
+  }
   // Rappel de sauvegarde
   const p = prefs(), pending = p.pending || 0;
   if (all.length && pending > 0 && (!p.lastBackup || Date.now() - p.lastBackup > 7 * 864e5 || pending >= 5)) {
@@ -737,8 +955,16 @@ function showLastBackup(){ const p = prefs(); $("last-backup").textContent = p.l
 function openSettings(){
   $("p-auto").value = String(prefs().auto || 5); $("f-chg").reset(); $("c-err").textContent = "";
   $("wipe-box").hidden = true; $("import-msg").textContent = ""; $("csv-msg").textContent = ""; $("csv-go").hidden = true;
+  $("rc-status").textContent = hdr.wrc ? "Clé de secours active ✓" : "Aucune clé de secours pour l'instant.";
+  $("rc-status").style.color = hdr.wrc ? "var(--green)" : "var(--amber)";
+  $("rc-new").textContent = hdr.wrc ? "Créer une nouvelle clé de secours" : "Créer ma clé de secours";
+  $("h-in").value = hdr.hint || "";
+  $("fid-set-err").textContent = ""; refreshFidSettings();
+  $("c-bio").hidden = !bioSession; $("c-old").hidden = bioSession;
   showLastBackup(); openSheet("sh-set");
 }
+$("rc-new").addEventListener("click", newRescue);
+$("h-save").addEventListener("click", async () => { hdr.hint = $("h-in").value.trim(); await save(true); toast(hdr.hint ? "Indice enregistré" : "Indice supprimé"); });
 $("b-settings").addEventListener("click", openSettings);
 $("p-auto").addEventListener("change", e => { setPref("auto", +e.target.value); toast("Réglage enregistré"); });
 $("f-chg").addEventListener("submit", async e => {
@@ -747,10 +973,9 @@ $("f-chg").addEventListener("submit", async e => {
   if (n.length < 8) { err.textContent = "Le nouveau mot de passe doit faire 8 caractères minimum."; return; }
   if (n !== $("c-new2").value) { err.textContent = "Les deux nouveaux mots de passe ne sont pas identiques."; return; }
   $("c-go").disabled = true; $("c-go").textContent = "Vérification…";
-  try { await openVault($("c-old").value, readStore()); }
+  try { if (!bioSession) await unwrapRaw(await deriveKey($("c-old").value, unb64(hdr.salt), hdr.iter), hdr.wpw); }
   catch { err.textContent = "Le mot de passe actuel est incorrect."; $("c-go").disabled = false; $("c-go").textContent = "Changer"; return; }
-  salt = crypto.getRandomValues(new Uint8Array(16)); iter = ITER; key = await deriveKey(n, salt, iter);
-  await save(); $("f-chg").reset(); err.textContent = ""; $("c-go").disabled = false; $("c-go").textContent = "Changer"; toast("Mot de passe maître changé");
+  await setPassword(n); await save(true); $("f-chg").reset(); err.textContent = ""; $("c-go").disabled = false; $("c-go").textContent = "Changer"; toast("Mot de passe maître changé");
 });
 
 function backupDone(){ setPref("lastBackup", Date.now()); setPref("pending", 0); showLastBackup(); if (key && $("v-detail").hidden) render(); toast("Sauvegarde enregistrée"); }
@@ -769,7 +994,7 @@ $("import-file").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
   const msg = $("import-msg"); let st;
   try { st = JSON.parse(await f.text()); } catch { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
-  if (!st || st.app !== "trousseau" || !st.ct || !st.salt || !st.iv) { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
+  if (!st || st.app !== "trousseau" || !st.ct || !st.salt || !st.iv || (st.v === 2 && !st.wpw)) { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
   try { localStorage.setItem(STORE, JSON.stringify(st)); } catch { msg.textContent = "Impossible d'enregistrer la sauvegarde sur ce téléphone."; return; }
   lock(); $("l-err").textContent = "Sauvegarde restaurée. Entre le mot de passe maître de cette sauvegarde.";
 });
@@ -842,7 +1067,7 @@ $("b-wipe").addEventListener("click", () => { $("wipe-box").hidden = false; $("w
 $("wipe-go").addEventListener("click", () => {
   if ($("wipe-txt").value.trim().toUpperCase() !== "EFFACER") { shake($("wipe-txt")); return; }
   try { localStorage.removeItem(STORE); } catch {}
-  key = vault = null; closeSheets(); $("v-detail").hidden = true; show("v-setup"); toast("Trousseau effacé");
+  key = vault = dekRaw = hdr = null; closeSheets(); $("v-detail").hidden = true; show("v-setup"); toast("Trousseau effacé");
 });
 $("ver").textContent = "Trousseau v" + APP_VERSION + " · données uniquement sur ce téléphone";
 
@@ -866,8 +1091,9 @@ function applyUpdate(){ if (waitingSW) waitingSW.postMessage("skipWaiting"); }
 function updateReady(w){ waitingSW = w; if (!key) applyUpdate(); else $("upd").hidden = false; }
 $("upd-go").addEventListener("click", applyUpdate);
 if ("serviceWorker" in navigator) {
-  let reloading = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloading) { reloading = true; location.reload(); } });
+  // Recharger seulement pour une vraie mise à jour, jamais à la toute première installation
+  let reloading = false; const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && waitingSW && !reloading) { reloading = true; location.reload(); } });
   navigator.serviceWorker.register("sw.js").then(reg => {
     swReg = reg;
     if (reg.waiting && navigator.serviceWorker.controller) updateReady(reg.waiting);
@@ -882,7 +1108,7 @@ if ("serviceWorker" in navigator) {
 /* ---------- Démarrage ---------- */
 if (!window.crypto || !crypto.subtle) {
   document.body.innerHTML = '<div class="wrap gate"><h1>Connexion sécurisée requise</h1><p class="sub">Ouvre Trousseau depuis une adresse https:// pour activer le chiffrement.</p></div>';
-} else show(readStore() ? "v-lock" : "v-setup");
+} else { refreshLockUI(); show(readStore() ? "v-lock" : "v-setup"); }
 </script>
 </body>
 </html>
