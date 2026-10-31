@@ -79,6 +79,8 @@ textarea.input{min-height:90px;resize:vertical}
 .app{min-height:100%}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg-deep);border-bottom:1px solid var(--line)}
 .topbar{display:flex;align-items:center;gap:8px;padding-block:10px 8px}
+.topbar .ibtn{width:42px;height:42px;flex-basis:42px}
+.topbar{gap:6px!important}
 .topbar h1{flex:1;min-width:0;margin:0;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .status{display:flex;gap:6px;padding-bottom:8px}
 .chip{font-size:10.5px;font-weight:800;letter-spacing:.12em;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
@@ -182,6 +184,16 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .group{display:flex;flex-direction:column;gap:10px;padding-block:16px;border-top:1px solid var(--line)}
 .group:first-of-type{border-top:none;padding-top:0}
 .stamp{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+.help-link{border:none;background:none;color:var(--amber);font-weight:700;padding:8px;text-decoration:underline;text-underline-offset:3px}
+.guide{display:flex;flex-direction:column;gap:8px}
+.guide details{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:700;font-size:16.5px}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary .n{width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;font-size:14px;font-weight:800}
+.guide summary::after{content:"›";margin-left:auto;font-size:22px;color:var(--faint);transition:transform .2s}
+.guide details[open] summary::after{transform:rotate(90deg)}
+.guide ol,.guide ul{margin:0;padding:0 16px 16px 46px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:15px}
+.guide b{color:var(--ink)}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 98px);z-index:60;
   background:var(--card-hi);border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-size:15px;font-weight:600;
@@ -213,6 +225,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <button class="btn primary" id="s-go" type="submit">Créer mon trousseau</button>
     <div class="err" id="s-err" role="alert"></div>
   </form>
+  <div class="form" style="border-top:1px solid var(--line);padding-top:20px">
+    <span class="hint" style="text-align:center">Tu changes de téléphone ?</span>
+    <button class="btn" id="s-restore" type="button">Restaurer une sauvegarde</button>
+    <button class="help-link" type="button" data-help>Mode d'emploi</button>
+  </div>
 </section>
 
 <!-- Déverrouillage -->
@@ -234,7 +251,10 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <div class="err" id="l-err" role="alert"></div>
     <div class="hint" id="l-hint" style="text-align:center" hidden></div>
   </form>
-  <button class="btn ghost" id="l-forgot" type="button">Mot de passe oublié ?</button>
+  <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap">
+    <button class="btn ghost" id="l-forgot" type="button">Mot de passe oublié ?</button>
+    <button class="help-link" type="button" data-help>Mode d'emploi</button>
+  </div>
 
   <form id="rec-box" class="form" autocomplete="off" hidden>
     <span class="lbl">Récupérer avec la clé de secours</span>
@@ -278,8 +298,9 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <header class="top" id="hdr">
     <div class="wrap">
       <div class="topbar">
-        <h1 id="list-title">Tous les accès</h1>
+        <h1 id="list-title">Mes accès</h1>
         <button class="ibtn" id="b-fav" aria-label="Afficher seulement les favoris" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>
+        <button class="ibtn" type="button" data-help aria-label="Mode d'emploi" style="font-size:21px;font-weight:800;color:var(--amber)">?</button>
         <button class="ibtn" id="b-settings" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
         <button class="ibtn" id="b-lock" aria-label="Verrouiller" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
       </div>
@@ -348,17 +369,58 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   </form>
 </div>
 
+<!-- Feuille : mode d'emploi -->
+<div class="backdrop" id="sh-help" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="help-title">
+    <div class="grab"></div>
+    <h2><span id="help-title">Mode d'emploi</span><button type="button" data-close>Fermer</button></h2>
+    <div class="guide">
+      <details open><summary><span class="n">1</span>Installer et démarrer</summary><ol>
+        <li>Ouvre l'adresse de l'appli dans <b>Safari</b>, puis touche <b>Partager → Sur l'écran d'accueil</b>.</li>
+        <li>Ouvre toujours Trousseau <b>depuis l'icône</b>, jamais depuis Safari.</li>
+        <li>Choisis ton <b>mot de passe maître</b>.</li>
+        <li>Note ta <b>clé de secours</b> sur papier.</li>
+        <li>Active <b>Face ID</b> avec le bandeau vert.</li></ol></details>
+      <details><summary><span class="n">2</span>Au quotidien</summary><ul>
+        <li><b>+</b> en bas : ajouter un accès.</li>
+        <li>Touche un accès pour <b>voir ou copier</b> le mot de passe.</li>
+        <li>Le <b>crayon</b> sert à modifier ou supprimer.</li>
+        <li>Les ronds en haut filtrent, l'<b>étoile</b> montre les favoris.</li>
+        <li>Le <b>cadenas</b> verrouille. Trousseau se verrouille aussi tout seul.</li></ul></details>
+      <details><summary><span class="n">3</span>Sauvegarder</summary><ol>
+        <li>Réglages → <b>Sauvegarder / e-mail</b>.</li>
+        <li>Choisis <b>Mail</b> et envoie-le à ta propre adresse.</li>
+        <li>Refais-le dès que le <b>bandeau orange</b> apparaît.</li></ol>
+        <ul style="padding-top:0"><li>Le fichier est chiffré : sans ton mot de passe, il est illisible.</li>
+        <li>Rien n'est sauvegardé automatiquement dans iCloud.</li></ul></details>
+      <details><summary><span class="n">4</span>Changer de téléphone</summary><ol>
+        <li>Dans Mail, appuie longuement sur la pièce jointe → <b>Enregistrer dans Fichiers</b>.</li>
+        <li>Installe Trousseau à la <b>même adresse</b> (étape 1).</li>
+        <li>Touche <b>Restaurer une sauvegarde</b> et choisis le fichier.</li>
+        <li>Entre ton mot de passe maître.</li></ol></details>
+      <details><summary><span class="n">5</span>Mot de passe oublié</summary><ul>
+        <li>Avec <b>Face ID</b> : ouvre l'appli, puis Réglages → change le mot de passe.</li>
+        <li>Sans Face ID : touche <b>Mot de passe oublié ?</b> et entre ta clé de secours.</li></ul></details>
+      <details><summary><span class="n">6</span>Bon à savoir</summary><ul>
+        <li>Tes mots de passe restent <b>uniquement sur ton téléphone</b>, chiffrés.</li>
+        <li>Trousseau marche <b>sans connexion</b>.</li>
+        <li>Les mises à jour arrivent toutes seules.</li></ul></details>
+    </div>
+  </div>
+</div>
+
 <!-- Feuille : réglages -->
 <div class="backdrop" id="sh-set" hidden>
   <div class="sheet" role="dialog" aria-labelledby="set-title">
     <div class="grab"></div>
     <h2><span id="set-title">Réglages</span><button type="button" data-close>Fermer</button></h2>
+    <button class="btn" type="button" data-help style="width:100%;margin-bottom:16px">Mode d'emploi</button>
     <div class="group">
       <span class="lbl">Sauvegarde</span>
       <span class="stamp" id="last-backup" style="font-size:14.5px;color:var(--muted)"></span>
-      <span class="hint">Le fichier reste chiffré avec ton mot de passe maître. Range-le dans Fichiers ou iCloud. Pour le récupérer, touche « Restaurer » puis entre le mot de passe maître de cette sauvegarde.</span>
+      <span class="hint">Le fichier reste chiffré : sans ton mot de passe maître (ou ta clé de secours), il est illisible. Dans le menu qui s'ouvre, choisis Mail pour te l'envoyer, ou « Enregistrer dans Fichiers » pour le garder dans iCloud Drive. Pour le récupérer, touche « Restaurer ».</span>
       <div class="actions" style="margin:0">
-        <button class="btn primary" id="b-export" type="button">Sauvegarder</button>
+        <button class="btn primary" id="b-export" type="button">Sauvegarder / e-mail</button>
         <button class="btn" id="b-import" type="button">Restaurer</button>
       </div>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
@@ -427,7 +489,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.6.0";
+const APP_VERSION = "1.9.0";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
@@ -759,7 +821,7 @@ function render(){
   const recent = filter === "recent";
   if (recent) items = items.sort((a, b) => b.updated - a.updated).slice(0, 30);
   else items.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity:"base", numeric:true }));
-  $("list-title").textContent = favOnly ? "Favoris" : (FILTERS.find(f => f[0] === filter)[1] === "Tous" ? "Tous les accès" : FILTERS.find(f => f[0] === filter)[1]);
+  $("list-title").textContent = favOnly ? "Favoris" : (FILTERS.find(f => f[0] === filter)[1] === "Tous" ? "Mes accès" : FILTERS.find(f => f[0] === filter)[1]);
   list.textContent = "";
 
   // Clé de secours manquante (trousseau créé avec une ancienne version)
@@ -933,6 +995,7 @@ function renderSegs(){
 function openSheet(id){ $(id).hidden = false; }
 function closeSheets(){ document.querySelectorAll(".backdrop").forEach(b => b.hidden = true); editingId = null; }
 document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeSheets));
+document.querySelectorAll("[data-help]").forEach(b => b.addEventListener("click", () => { closeSheets(); openSheet("sh-help"); $("sh-help").querySelector(".sheet").scrollTop = 0; }));
 document.querySelectorAll(".backdrop").forEach(b => b.addEventListener("click", e => { if (e.target === b) closeSheets(); }));
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!document.querySelector(".backdrop:not([hidden])") && !$("v-detail").hidden) closeDetail(); else closeSheets(); } });
 
@@ -1029,9 +1092,10 @@ async function exportBackup(){
 }
 $("b-export").addEventListener("click", exportBackup);
 $("b-import").addEventListener("click", () => $("import-file").click());
+$("s-restore").addEventListener("click", () => { $("s-err").textContent = ""; $("import-file").click(); });
 $("import-file").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
-  const msg = $("import-msg"); let st;
+  const msg = key ? $("import-msg") : $("s-err"); let st;
   try { st = JSON.parse(await f.text()); } catch { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
   if (!st || st.app !== "trousseau" || !st.ct || !st.salt || !st.iv || (st.v === 2 && !st.wpw)) { msg.textContent = "Ce fichier n'est pas une sauvegarde Trousseau."; return; }
   try { localStorage.setItem(STORE, JSON.stringify(st)); } catch { msg.textContent = "Impossible d'enregistrer la sauvegarde sur ce téléphone."; return; }
