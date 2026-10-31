@@ -230,6 +230,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <button class="btn" id="s-restore" type="button">Restaurer une sauvegarde</button>
     <button class="help-link" type="button" data-help>Mode d'emploi</button>
   </div>
+  <p class="stamp" data-ver style="text-align:center;margin:0"></p>
 </section>
 
 <!-- Déverrouillage -->
@@ -255,6 +256,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <button class="btn ghost" id="l-forgot" type="button">Mot de passe oublié ?</button>
     <button class="help-link" type="button" data-help>Mode d'emploi</button>
   </div>
+  <p class="stamp" data-ver style="text-align:center;margin:0"></p>
 
   <form id="rec-box" class="form" autocomplete="off" hidden>
     <span class="lbl">Récupérer avec la clé de secours</span>
@@ -489,7 +491,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
 <script>
 "use strict";
-const APP_VERSION = "1.9.0";
+const APP_VERSION = "1.9.1";
 const STORE = "trousseau.vault.v1", PREFS = "trousseau.prefs";
 const ITER = 600000;
 const $ = id => document.getElementById(id);
@@ -1173,6 +1175,7 @@ $("wipe-go").addEventListener("click", () => {
   key = vault = dekRaw = hdr = null; closeSheets(); $("v-detail").hidden = true; show("v-setup"); toast("Trousseau effacé");
 });
 $("ver").textContent = "Trousseau v" + APP_VERSION + " · données uniquement sur ce téléphone";
+document.querySelectorAll("[data-ver]").forEach(p => p.textContent = "Version " + APP_VERSION);
 
 /* ---------- Verrouillage automatique ---------- */
 ["pointerdown","keydown","scroll","input"].forEach(t => addEventListener(t, () => lastActivity = Date.now(), { passive:true, capture:true }));
